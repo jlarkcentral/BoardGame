@@ -24,11 +24,14 @@ function Mouse:update(player)
     -- TEMP == out of map
     if self.mouseOverTile[1] > boardXSize
         or self.mouseOverTile[2] > boardYSize
-        or (self.mouseOverTile[1] == player.characters[player.currentChar].x and self.mouseOverTile[2] == player.characters[player.currentChar].y)
-        or not (self.mouseOverTileValue == 0 or self.mouseOverTileValue == 1 or self.mouseOverTileValue == 2 or self.mouseOverTileValue == 6)
-        or (math.abs(self.mouseOverTile[1] - player.characters[player.currentChar].x) > 1 or math.abs(self.mouseOverTile[2] - player.characters[player.currentChar].y) > 1) then
-        self.mouseOverIsInRange = false
-    elseif (self.mouseOverTileValue == 0 or self.mouseOverTileValue == 1 or self.mouseOverTileValue == 2 or self.mouseOverTileValue == 6) then
+        or (self.mouseOverTile[1] == player.characters[player.currentChar].x
+            and self.mouseOverTile[2] == player.characters[player.currentChar].y
+            )
+        -- or not (self.mouseOverTileValue == 0 or self.mouseOverTileValue == 1 or self.mouseOverTileValue == 2 or self.mouseOverTileValue == 6)
+        or not player:tileInRange(self.mouseOverTile) then
+        -- self.mouseOverIsInRange = false
+    else -- if (self.mouseOverTileValue == 0 or self.mouseOverTileValue == 1 or self.mouseOverTileValue == 2
+        -- or self.mouseOverTileValue == 6) then
         self.mouseOverIsInRange = true
     end
     if love.mouse.isDown("l","r") then

@@ -41,7 +41,7 @@ function Player:update(dt,mouse)
 					self.dice = self.dice - 1
 				end
 				if love.mouse.isDown("r") then
-					self:shoot()
+					-- self:shoot()
 					self.dice = self.dice - 1
 				end
 			end
@@ -95,7 +95,6 @@ function Player:goToStartPosition(board)
 			end
 		end
 	end
-	
 	self.dice = 0
 	self.turnState = "finished"
 end
@@ -125,6 +124,10 @@ function Player:moveBullet(dt)
 	end
 end
 
-function distanceFrom(x1,y1,x2,y2)
+function Player:distanceFrom(x1,y1,x2,y2)
 	return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+end
+
+function Player:tileInRange(tilePos)
+	return self:distanceFrom(self.characters[self.currentChar].x,self.characters[self.currentChar].x,tilePos[1],tilePos[2]) <= self.dice
 end
