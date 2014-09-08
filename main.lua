@@ -9,9 +9,9 @@ function love.load()
 	boardYSize = 9
 
 	-- load all modules
-	require "Player"
-	require "Board"
-	require "Mouse"
+	require "player"
+	require "board"
+	require "mouse"
 
 	-- objects initialization
 	mouse = Mouse:new()

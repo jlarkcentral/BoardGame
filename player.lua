@@ -4,9 +4,9 @@ Player = {}
 
 -- Constructor
 function Player:new()
-	require "Ranger"
-	require "Shield"
-	require "Rogue"
+	require "ranger"
+	require "shield"
+	require "rogue"
 
     local object = {
     characters = {},

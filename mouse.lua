@@ -29,7 +29,7 @@ function Mouse:update(player)
             )
         -- or not (self.mouseOverTileValue == 0 or self.mouseOverTileValue == 1 or self.mouseOverTileValue == 2 or self.mouseOverTileValue == 6)
         or not player:tileInRange(self.mouseOverTile) then
-        -- self.mouseOverIsInRange = false
+        self.mouseOverIsInRange = false
     else -- if (self.mouseOverTileValue == 0 or self.mouseOverTileValue == 1 or self.mouseOverTileValue == 2
         -- or self.mouseOverTileValue == 6) then
         self.mouseOverIsInRange = true
