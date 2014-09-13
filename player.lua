@@ -11,7 +11,9 @@ function Player:new()
     local object = {
     characters = {},
     currentChar = 1,
-    turnState = "finished",
+    turnState = "",
+    turnFinished = "turnFinished",
+    turnDiceRolled = "turnDiceRolled",
     dice = 0
     }
     setmetatable(object, { __index = Player })
@@ -33,12 +35,12 @@ end
 
 -- Update movement
 function Player:update(dt,mouse)
-	if self.turnState == "diceRolled" then
+	if self.turnState == self.turnDiceRolled then
 		if self.dice > 0 then
 			if not mouse.mousePressed then
 				if love.mouse.isDown("l") and mouse.mouseOverIsInRange then
+					self.dice = self.dice - tile_distance(self:current_position(), mouse.mouseOverTile)
 					self.characters[self.currentChar].x, self.characters[self.currentChar].y = mouse.mouseOverTile[1], mouse.mouseOverTile[2]
-					self.dice = self.dice - 1
 				end
 				if love.mouse.isDown("r") then
 					-- self:shoot()
@@ -46,16 +48,16 @@ function Player:update(dt,mouse)
 				end
 			end
 		else
-			self.turnState = "finished"
+			self.turnState = self.turnFinished
 			self.currentChar = ( (self.currentChar + 1) % #(self.characters) )
 			if self.currentChar == 0 then
 				self.currentChar = #(self.characters)
 			end
 		end
-	elseif self.turnState == "finished" then
+	elseif self.turnState == self.turnFinished then
 		if love.keyboard.isDown(" ") then
 			self.dice = math.random(6)
-			self.turnState = "diceRolled"
+			self.turnState = self.turnDiceRolled
 		end
 	end
 	-- if self.shooting then
@@ -74,29 +76,30 @@ function Player:draw()
 end
 
 -- Place player at game start
-function Player:goToStartPosition(board)
-	local positions = {}
+function Player:go_to_start_position(board)
+	local btiles = get_blank_tiles_y(board)
 	for i,char in ipairs(self.characters) do
 		char.x = 0
-		local ok = false
-		while not ok do
-			r = math.random(boardYSize)
-			if board.tiles[1][r] == 0 then
-				local contains = false
-				for _,val in ipairs(positions) do
-					if r == val then
-						contains = true
-					end
-				end
-				if not contains then
-					char.y = r
-					ok = true
-				end
+		local r = choose(btiles)
+		char.y = r-1
+		for i,v in ipairs(btiles) do
+			if v == r then
+				table.remove(btiles, i)
 			end
 		end
 	end
 	self.dice = 0
-	self.turnState = "finished"
+	self.turnState = self.turnFinished
+end
+
+function get_blank_tiles_y(board)
+	local btiles = {}
+	for _,t in ipairs(board.tiles) do
+		if t.x == 1 and t.tileType == board.blankTile then
+			table.insert(btiles, t.y)
+		end
+	end
+	return btiles
 end
 
 -- Shoot to target
@@ -108,7 +111,7 @@ end
 
 -- bullet movement
 function Player:moveBullet(dt)
-	if distanceFrom(self.bullet_x,self.bullet_y,self.target[1],self.target[2]) > 0 then
+	if tile_distance({self.bullet_x,self.bullet_y},self.target) > 0 then
 		if self.bullet_x < self.target[1] then
 			self.bullet_x = self.bullet_x + 5
 		elseif self.bullet_x > self.target[1] then
@@ -124,10 +127,10 @@ function Player:moveBullet(dt)
 	end
 end
 
-function Player:distanceFrom(x1,y1,x2,y2)
-	return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+function Player:tileInRange(tilePos)
+	return tile_distance(self:current_position(), tilePos) <= self.dice
 end
 
-function Player:tileInRange(tilePos)
-	return self:distanceFrom(self.characters[self.currentChar].x,self.characters[self.currentChar].x,tilePos[1],tilePos[2]) <= self.dice
+function Player:current_position()
+	return {self.characters[self.currentChar].x, self.characters[self.currentChar].y}
 end

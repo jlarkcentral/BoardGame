@@ -17,7 +17,7 @@ end
 
 function Mouse:update(player)
     self.mx, self.my = love.mouse.getPosition()
-    self.mouseOverTile = {(math.floor(self.mx/50)), (math.floor(self.my/50))}
+    self.mouseOverTile = {(math.floor(self.mx/tilePixelSize)), (math.floor(self.my/tilePixelSize))}
     if self.mouseOverTile[1] <= boardXSize and self.mouseOverTile[2] <= boardYSize then
         self.mouseOverTileValue = board.tiles[self.mouseOverTile[2]+1][self.mouseOverTile[1]+1]
     end
@@ -27,11 +27,9 @@ function Mouse:update(player)
         or (self.mouseOverTile[1] == player.characters[player.currentChar].x
             and self.mouseOverTile[2] == player.characters[player.currentChar].y
             )
-        -- or not (self.mouseOverTileValue == 0 or self.mouseOverTileValue == 1 or self.mouseOverTileValue == 2 or self.mouseOverTileValue == 6)
         or not player:tileInRange(self.mouseOverTile) then
         self.mouseOverIsInRange = false
-    else -- if (self.mouseOverTileValue == 0 or self.mouseOverTileValue == 1 or self.mouseOverTileValue == 2
-        -- or self.mouseOverTileValue == 6) then
+    else
         self.mouseOverIsInRange = true
     end
     if love.mouse.isDown("l","r") then
