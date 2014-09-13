@@ -44,7 +44,6 @@ function love.update(dt)
 end
 
 function love.draw()
-	stimeDraw = os.clock()
 	board:draw({player.characters[player.currentChar].x,player.characters[player.currentChar].y})
 	player:draw()
 	board:drawDecoration({player.characters[player.currentChar].x,player.characters[player.currentChar].y})
@@ -55,7 +54,7 @@ function love.draw()
 		end
 	end
 	mouse:draw()
-	etimeDraw = os.clock()
+
 
 	love.graphics.draw(imageBgChar, 0, 500, 0, 2)
 	love.graphics.draw(player.characters[player.currentChar].image, 0, 500, 0, 2)

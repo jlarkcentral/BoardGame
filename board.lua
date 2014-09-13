@@ -48,20 +48,22 @@ function Board:generateEndPosition()
 end
 
 function Board:generateEnemies(count)
-    while count > 0 do
-        for y,tab in ipairs(self.tiles) do
-            for x,value in ipairs(tab) do
-                if value == 0 then
-                    chance = math.random(10)
-                    if chance == 5 then
-                        table.insert(self.villainPositions,{x,y})
-                        count = count - 1
-                        break
-                    end
-                end
-            end
-        end
-    end
+    -- while count > 0 do
+    --     for y,tab in ipairs(self.tiles) do
+    --         for x,value in ipairs(tab) do
+    --             if value == 0 then
+    --                 chance = math.random(10)
+    --                 if chance == 5 then
+    --                     table.insert(self.villainPositions,{x,y})
+    --                     count = count - 1
+    --                     break
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end
+    table.insert(self.villainPositions,{6,6})
+    table.insert(self.villainPositions,{10,3})
 end
 
 function Board:update(player)
@@ -70,27 +72,47 @@ function Board:update(player)
     elseif player.turnState == "diceRolled" then
         self.villainMoved = false
     end
-end
-
-function Board:villainMove(player)
-    love.graphics.print("villain move", 100, 580)
-    for i,pos in ipairs(self.villainPositions) do
-        local dir = math.random(10)
-        if (dir <= 5) then
-            if (pos[1] < player.characters[player.currentChar].x) then
-                self.villainPositions[i] = {pos[1]+1,pos[2]}
-            elseif (pos[1] > player.characters[player.currentChar].x) then
-                self.villainPositions[i] = {pos[1]-1,pos[2]}
+    for i, p in ipairs(self.warfog) do
+        for j, v in ipairs(p) do
+            for _,char in ipairs(player.characters) do
+                if tileDistance({char.x,char.y}, {j-1,i-1}) < 4 then
+                    self.warfog[i][j] = 1
+                end
             end
-        else
-            if (pos[2] < player.characters[player.currentChar].y) then
-                self.villainPositions[i] = {pos[1],pos[2]+1}
-            elseif (pos[2] > player.characters[player.currentChar].y) then
-                self.villainPositions[i] = {pos[1],pos[2]-1}
+            for _,v in ipairs(self.villainPositions) do
+                if tileDistance({v[1],v[2]}, {j,i}) < 2 then
+                    self.warfog[i][j] = 1
+                end
             end
         end
     end
-    self.villainMoved = true
+end
+
+function Board:villainMove(player)
+    -- for i,pos in ipairs(self.villainPositions) do
+    --     local dir = math.random(10)
+    --     if (dir <= 5) then
+    --         if (pos[1] < player.characters[player.currentChar].x) then
+    --             self.villainPositions[i] = {pos[1]+1,pos[2]}
+    --         elseif (pos[1] > player.characters[player.currentChar].x) then
+    --             self.villainPositions[i] = {pos[1]-1,pos[2]}
+    --         end
+    --     else
+    --         if (pos[2] < player.characters[player.currentChar].y) then
+    --             self.villainPositions[i] = {pos[1],pos[2]+1}
+    --         elseif (pos[2] > player.characters[player.currentChar].y) then
+    --             self.villainPositions[i] = {pos[1],pos[2]-1}
+    --         end
+    --     end
+    -- end
+    -- self.villainMoved = true
+    for i,pos in ipairs(self.villainPositions) do
+        for j,char in ipairs(player.characters) do
+            if tileDistance(pos,{char.x, char.y}) <= 4 then
+                villainShoot()
+            end
+        end
+    end
 end
 
 function tileInRange(playerPos,tile)
@@ -110,14 +132,6 @@ function tileDistance(t1, t2)
 end
 
 function Board:draw(playerPos)
-    for i, p in ipairs(self.warfog) do
-        for j, v in ipairs(p) do
-            if tileDistance(playerPos, {j-1,i-1}) < 4 then
-                self.warfog[i][j] = 1
-            end
-        end
-    end
-
     for y,tab in ipairs(self.tiles) do
         for x,value in ipairs(tab) do
             if self.warfog[y][x] == 1 then
@@ -153,10 +167,6 @@ function Board:draw(playerPos)
         if y > 1 then
             love.graphics.draw(self.imageDanger, (x-1)*tilePixelSize, (y-2)*tilePixelSize)
         end
-    end
-
-    if mouseOverIsInRange then
-        love.graphics.draw(self.imageFrame, mouseOverTile[1]*tilePixelSize, mouseOverTile[2]*tilePixelSize)
     end
 end
 

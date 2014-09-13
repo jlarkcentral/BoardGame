@@ -3,15 +3,18 @@ Rogue = {}
 -- Constructor
 function Rogue:new()
     local object = {
+    name = 'rogue',
     image = love.graphics.newImage('img/player/player_rogue.png'),
-    bulletImage = love.graphics.newImage('img/player/bullet.png'),
     x = 0,
     y = 0,
-    bullet_x = 0,
-    bullet_y = 0,
-    shooting = false,
-    target = {0,0},
     }
     setmetatable(object, { __index = Rogue })
     return object
+end
+
+function Rogue:draw()
+    love.graphics.draw(self.image, self.x*tilePixelSize, self.y*tilePixelSize)
+    if self.shooting then
+     love.graphics.draw(self.bulletImage, self.bullet_x, self.bullet_y)
+    end
 end

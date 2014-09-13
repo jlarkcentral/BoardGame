@@ -4,6 +4,7 @@ Mouse = {}
 function Mouse:new()
     local object = {
     mouseImage = love.graphics.newImage("img/game/mouse.png"),
+    imageFrame = love.graphics.newImage("img/board/frame.png"),
     mouseOverTile = {1,1},
     mx = 0,
     my = 0,
@@ -40,4 +41,7 @@ end
 
 function Mouse:draw()
     love.graphics.draw(self.mouseImage, self.mx, self.my)
+    if self.mouseOverIsInRange then
+        love.graphics.draw(self.imageFrame, self.mouseOverTile[1]*tilePixelSize, self.mouseOverTile[2]*tilePixelSize)
+    end
 end

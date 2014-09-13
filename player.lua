@@ -41,7 +41,12 @@ function Player:update(dt,mouse)
 					self.dice = self.dice - 1
 				end
 				if love.mouse.isDown("r") then
-					self:shoot()
+					if self.characters[self.currentChar].name == 'ranger' then
+						self.characters[self.currentChar]:shoot(mouse.mouseOverTile)
+					elseif self.characters[self.currentChar].name == 'shield' then
+						self.characters[self.currentChar]:protect(self.dice)
+					-- add rogue
+					end
 					self.dice = self.dice - 1
 				end
 			end
@@ -54,7 +59,7 @@ function Player:update(dt,mouse)
 		end
 	elseif self.turnState == "finished" then
 		if love.keyboard.isDown(" ") then
-			self.dice = math.random(6)
+			self.dice = rollDice()
 			self.turnState = "diceRolled"
 		end
 	end
@@ -66,10 +71,7 @@ end
 -- Draw player & player items
 function Player:draw()
 	for i,char in ipairs(self.characters) do
-		love.graphics.draw(char.image, char.x*tilePixelSize, char.y*tilePixelSize)
-		-- if self.shooting then
-		-- 	love.graphics.draw(self.bulletImage, self.bullet_x, self.bullet_y)
-		-- end
+		char:draw()
 	end
 end
 
@@ -100,28 +102,20 @@ function Player:goToStartPosition(board)
 	self.turnState = "finished"
 end
 
--- Shoot to target
-function Player:shoot()
-	self.target = { mouseOverTile[1]*tilePixelSize + tilePixelSize/2, mouseOverTile[2]*tilePixelSize + tilePixelSize/2 }
-	self.bullet_x, self.bullet_y = self.x*tilePixelSize + tilePixelSize/2, self.y*tilePixelSize + tilePixelSize/2
-	self.shooting = true
-end
-
--- bullet movement
-function Player:moveBullet(dt)
-	if distanceFrom(self.bullet_x,self.bullet_y,self.target[1],self.target[2]) > 0 then
-		if self.bullet_x < self.target[1] then
-			self.bullet_x = self.bullet_x + 5
-		elseif self.bullet_x > self.target[1] then
-			self.bullet_x = self.bullet_x - 5
-		end
-		if self.bullet_y < self.target[2] then
-			self.bullet_y = self.bullet_y + 5
-		elseif self.bullet_y > self.target[2] then
-			self.bullet_y = self.bullet_y - 5
-		end
-	else
-		self.shooting = false
+function rollDice()
+	local r = math.random(100)
+	if r >= 1 and r <= 5 then
+		return 1
+	elseif r > 5 and r <= 20 then
+		return 2
+	elseif r > 20 and r <= 50 then
+		return 3
+	elseif r > 50 and r <= 80 then
+		return 4
+	elseif r > 80 and r <= 95 then
+		return 5
+	elseif r > 95 and r <= 100 then
+		return 6
 	end
 end
 
