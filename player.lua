@@ -47,6 +47,7 @@ function Player:update(dt,mouse)
 						self.characters[self.currentChar]:shoot(mouse.mouseOverTile)
 					elseif self.characters[self.currentChar].name == 'shield' then
 						self.characters[self.currentChar]:protect(self.dice)
+						self.dice = 0
 					-- add rogue
 					end
 				end
