@@ -82,23 +82,22 @@ function Board:update(player)
     elseif player.turnState == self.turnDiceRolled then
         self.villainMoved = false
     end
-    for i, p in ipairs(self.warfog) do
-        for j, v in ipairs(p) do
-            for _,char in ipairs(player.characters) do
-                if tileDistance({char.x,char.y}, {j-1,i-1}) < 4 then
-                    self.warfog[i][j] = 1
-                end
-            end
-            for _,v in ipairs(self.villainPositions) do
-                if tileDistance({v[1],v[2]}, {j,i}) < 2 then
-                    self.warfog[i][j] = 1
-                end
-            end
-        end
-    end
+    -- for i, p in ipairs(self.warfog) do
+    --     for j, v in ipairs(p) do
+    --         for _,char in ipairs(player.characters) do
+    --             if tileDistance({char.x,char.y}, {j-1,i-1}) < 4 then
+    --                 self.warfog[i][j] = 1
+    --             end
+    --         end
+    --         for _,v in ipairs(self.villainPositions) do
+    --             if tileDistance({v[1],v[2]}, {j,i}) < 2 then
+    --                 self.warfog[i][j] = 1
+    --             end
+    --         end
+    --     end
+    -- end
 end
 
-<<<<<<< HEAD
 function Board:villainMove(player)
     -- for i,pos in ipairs(self.villainPositions) do
     --     local dir = math.random(10)
@@ -142,29 +141,11 @@ function tileDistance(t1, t2)
     return math.abs(t2[1]-t1[1])+math.abs(t2[2]-t1[2])
 end
 
-function Board:draw(playerPos)
-    for y,tab in ipairs(self.tiles) do
-        for x,value in ipairs(tab) do
-            if self.warfog[y][x] == 1 then
-                if value == 0 or value == 1 or value == 2 then
-                    love.graphics.draw(self.imageNeutral, (x-1)*tilePixelSize, (y-1)*tilePixelSize) -- isoX({(x-1), (y-1)}), isoY({(x-1), (y-1)}) )
-                --elseif value == 1 then 
-                --    love.graphics.draw(self.imageDanger, (x-1)*tilePixelSize, (y-1)*tilePixelSize)
 
-                elseif value == 6 then
-                    love.graphics.draw(self.imageEnd, (x-1)*tilePixelSize, (y-1)*tilePixelSize)
-                elseif value == 3 then
-                    love.graphics.draw(self.imageBlock, (x-1)*tilePixelSize, (y-1)*tilePixelSize)  -- isoX({(x-1), (y-1)}), isoY({(x-1), (y-1)}) )
-                end
-            else
-                love.graphics.draw(self.imageCloud, (x-1)*tilePixelSize, (y-1)*tilePixelSize)
-            end
--- =======
 function Board:draw(player, mouse)
     for i,tile in ipairs(self.tiles) do
         if tile_distance(player:current_position(), {tile.x-1,tile.y-1}) < 4 then
             tile.isWarfoged = false
--- >>>>>>> origin/master
         end
         tile:draw()
     end
@@ -186,8 +167,6 @@ function Board:draw(player, mouse)
             love.graphics.draw(self.imageDanger, (x-1)*tilePixelSize, (y-2)*tilePixelSize)
         end
     end
--- <<<<<<< HEAD
--- =======
 
     if mouse.mouseOverIsInRange then
         love.graphics.draw(self.imageFrame, mouse.mouseOverTile[1]*tilePixelSize, mouse.mouseOverTile[2]*tilePixelSize)
@@ -202,7 +181,6 @@ function Board:tile_image(tileType)
     elseif tileType == self.blockTile then
         return self.imageBlock
     end
--- >>>>>>> origin/master
 end
 
 function Board:generateEndPosition()

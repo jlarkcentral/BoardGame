@@ -43,17 +43,12 @@ function Player:update(dt,mouse)
 					self.characters[self.currentChar].x, self.characters[self.currentChar].y = mouse.mouseOverTile[1], mouse.mouseOverTile[2]
 				end
 				if love.mouse.isDown("r") then
--- <<<<<<< HEAD
 					if self.characters[self.currentChar].name == 'ranger' then
 						self.characters[self.currentChar]:shoot(mouse.mouseOverTile)
 					elseif self.characters[self.currentChar].name == 'shield' then
 						self.characters[self.currentChar]:protect(self.dice)
 					-- add rogue
 					end
--- =======
-					-- self:shoot()
--- >>>>>>> origin/master
--- 					self.dice = self.dice - 1
 				end
 			end
 		else
@@ -122,6 +117,7 @@ function rollDice()
 		return 5
 	elseif r > 95 and r <= 100 then
 		return 6
+	end
 end
 
 -- Shoot to target
