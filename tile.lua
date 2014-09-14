@@ -18,8 +18,8 @@ function Tile:new(xpos,ypos,type,tileImage)
 end
 
 function Tile:draw()
-	love.graphics.draw(self.image, (self.x-1)*tilePixelSize, (self.y-1)*tilePixelSize)
+	draw_on_tile(self.image, (self.x-1), (self.y-1))
 	if self.isWarfoged then
-		love.graphics.draw(self.imageWarfoged, (self.x-1)*tilePixelSize, (self.y-1)*tilePixelSize)
+		draw_on_tile(self.imageWarfoged, (self.x-1), (self.y-1))
 	end
 end

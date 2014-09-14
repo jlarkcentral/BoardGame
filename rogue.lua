@@ -13,8 +13,8 @@ function Rogue:new()
 end
 
 function Rogue:draw()
-    love.graphics.draw(self.image, self.x*tilePixelSize, self.y*tilePixelSize)
+    Character.draw(self)
     if self.shooting then
-     love.graphics.draw(self.bulletImage, self.bullet_x, self.bullet_y)
+        love.graphics.draw(self.bulletImage, self.bullet_x, self.bullet_y)
     end
 end

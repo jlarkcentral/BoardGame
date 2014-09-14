@@ -2,6 +2,9 @@ Shield = {}
 
 -- Constructor
 function Shield:new()
+    require 'character'
+
+    local char = Character:new()
     local object = {
     name = 'shield',
     image = love.graphics.newImage('img/player/player_shield.png'),
@@ -9,19 +12,20 @@ function Shield:new()
     shieldPoints = 0,
     protecting = false,
     }
-    setmetatable(object, { __index = Shield })
+    setmetatable(self, {__index = char })
+    setmetatable(object, {__index = Shield })
     return object
 end
 
 function Shield:draw()
     if self.protecting then
-        for i=(math.max(0,self.x-self.shieldPoints)), (math.min(boardXSize,self.x+self.shieldPoints)) do
-            for j=(math.max(0,self.y-self.shieldPoints)), (math.min(boardYSize,self.y+self.shieldPoints)) do
-                love.graphics.draw(self.protectZoneImage, i*tilePixelSize, j*tilePixelSize)    
+        for i=(math.max(0, self.x-self.shieldPoints)), (math.min(BOARD_X_SIZE, self.x+self.shieldPoints)) do
+            for j=(math.max(0, self.y-self.shieldPoints)), (math.min(BOARD_Y_SIZE, self.y+self.shieldPoints)) do
+                draw_on_tile(self.protectZoneImage, i, j)    
             end        
         end
     end
-    love.graphics.draw(self.image, self.x*tilePixelSize, self.y*tilePixelSize)
+    Character.draw(self)
 end
 
 function Shield:protect(points)

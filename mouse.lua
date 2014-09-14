@@ -18,18 +18,16 @@ end
 
 function Mouse:update(player)
     self.mx, self.my = love.mouse.getPosition()
-    self.mouseOverTile = {(math.floor(self.mx/tilePixelSize)), (math.floor(self.my/tilePixelSize))}
-    if self.mouseOverTile[1] <= boardXSize and self.mouseOverTile[2] <= boardYSize then
+    self.mouseOverTile = {(math.floor(self.mx/TILE_PIXEL_SIZE)), (math.floor(self.my/TILE_PIXEL_SIZE))}
+    if self.mouseOverTile[1] <= BOARD_X_SIZE and self.mouseOverTile[2] <= BOARD_Y_SIZE then
         self.mouseOverTileValue = board.tiles[self.mouseOverTile[2]+1][self.mouseOverTile[1]+1]
     end
     -- TEMP == out of map
-    if self.mouseOverTile[1] > boardXSize
-        or self.mouseOverTile[2] > boardYSize
-        or (self.mouseOverTile[1] == player.characters[player.currentChar].x
-            and self.mouseOverTile[2] == player.characters[player.currentChar].y
-            )
-        or not player:tileInRange(self.mouseOverTile) then
-        self.mouseOverIsInRange = false
+    if self.mouseOverTile[1] > BOARD_X_SIZE
+        or self.mouseOverTile[2] > BOARD_Y_SIZE
+        or (self.mouseOverTile[1] == player:current_char().x and self.mouseOverTile[2] == player:current_char().y)
+        or not player:tile_in_range(self.mouseOverTile) then
+            self.mouseOverIsInRange = false
     else
         self.mouseOverIsInRange = true
     end
@@ -41,8 +39,8 @@ function Mouse:update(player)
 end
 
 function Mouse:draw()
-    love.graphics.draw(self.mouseImage, self.mx, self.my)
     if self.mouseOverIsInRange then
-        love.graphics.draw(self.imageFrame, self.mouseOverTile[1]*tilePixelSize, self.mouseOverTile[2]*tilePixelSize)
+        draw_on_tile(self.imageFrame, self.mouseOverTile[1], self.mouseOverTile[2])
     end
+    love.graphics.draw(self.mouseImage, self.mx, self.my)
 end

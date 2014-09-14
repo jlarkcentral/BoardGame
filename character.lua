@@ -12,5 +12,9 @@ function Character:new()
 end
 
 function Character:draw()
-    love.graphics.draw(self.image, self.x*tilePixelSize, self.y*tilePixelSize)    
+    draw_on_tile(self.image, self.x, self.y)    
+end
+
+function Character:position()
+	return {self.x, self.y}
 end

@@ -20,33 +20,21 @@ function Player:new()
     return object
 end
 
-function Player:addRanger()
-	table.insert(self.characters,Ranger:new())
-end
-
-function Player:addShield()
-	table.insert(self.characters,Shield:new())
-end
-
-function Player:addRogue()
-	table.insert(self.characters,Rogue:new())
-end
-
-
 -- Update movement
 function Player:update(dt,mouse)
 	if self.turnState == self.turnDiceRolled then
 		if self.dice > 0 then
 			if not mouse.mousePressed then
 				if love.mouse.isDown("l") and mouse.mouseOverIsInRange then
-					self.dice = self.dice - tile_distance(self:current_position(), mouse.mouseOverTile)
-					self.characters[self.currentChar].x, self.characters[self.currentChar].y = mouse.mouseOverTile[1], mouse.mouseOverTile[2]
+					self.dice = self.dice - tile_distance(self:current_char():position(), mouse.mouseOverTile)
+					self:current_char().x, self:current_char().y = mouse.mouseOverTile[1], mouse.mouseOverTile[2]
 				end
 				if love.mouse.isDown("r") then
-					if self.characters[self.currentChar].name == 'ranger' then
-						self.characters[self.currentChar]:shoot(mouse.mouseOverTile)
-					elseif self.characters[self.currentChar].name == 'shield' then
-						self.characters[self.currentChar]:protect(self.dice)
+					if self:current_char().name == 'ranger' and mouse.mouseOverIsInRange then
+						self:current_char():shoot(mouse.mouseOverTile)
+						self.dice = self.dice - tile_distance(self:current_char():position(), mouse.mouseOverTile)
+					elseif self:current_char().name == 'shield' then
+						self:current_char():protect(self.dice)
 						self.dice = 0
 					-- add rogue
 					end
@@ -61,13 +49,10 @@ function Player:update(dt,mouse)
 		end
 	elseif self.turnState == self.turnFinished then
 		if love.keyboard.isDown(" ") then
-			self.dice = rollDice()
+			self.dice = roll_dice()
 			self.turnState = self.turnDiceRolled
 		end
 	end
-	-- if self.shooting then
-	-- 	self:moveBullet(dt)
-	-- end
 end
 
 -- Draw player & player items
@@ -75,6 +60,20 @@ function Player:draw()
 	for i,char in ipairs(self.characters) do
 		char:draw()
 	end
+end
+
+------------------------------------------------------------
+
+function Player:add_ranger()
+	table.insert(self.characters,Ranger:new())
+end
+
+function Player:add_shield()
+	table.insert(self.characters,Shield:new())
+end
+
+function Player:add_rogue()
+	table.insert(self.characters,Rogue:new())
 end
 
 -- Place player at game start
@@ -104,7 +103,7 @@ function get_blank_tiles_y(board)
 	return btiles
 end
 
-function rollDice()
+function roll_dice()
 	local r = math.random(100)
 	if r >= 1 and r <= 5 then
 		return 1
@@ -122,34 +121,16 @@ function rollDice()
 end
 
 -- Shoot to target
-function Player:shoot()
-	self.target = { mouseOverTile[1]*tilePixelSize + tilePixelSize/2, mouseOverTile[2]*tilePixelSize + tilePixelSize/2 }
-	self.bullet_x, self.bullet_y = self.x*tilePixelSize + tilePixelSize/2, self.y*tilePixelSize + tilePixelSize/2
-	self.shooting = true
+-- function Player:shoot()
+-- 	self.target = { (mouseOverTile[1] + 0.5)*TILE_PIXEL_SIZE, (mouseOverTile[2] + 0.5)*TILE_PIXEL_SIZE }
+-- 	self.bullet_x, self.bullet_y = (self.x + 0.5)*TILE_PIXEL_SIZE, (self.y + 0.5)*TILE_PIXEL_SIZE
+-- 	self.shooting = true
+-- end
+
+function Player:tile_in_range(tilePos)
+	return tile_distance(self:current_char():position(), tilePos) <= self.dice
 end
 
--- bullet movement
-function Player:moveBullet(dt)
-	if tile_distance({self.bullet_x,self.bullet_y},self.target) > 0 then
-		if self.bullet_x < self.target[1] then
-			self.bullet_x = self.bullet_x + 5
-		elseif self.bullet_x > self.target[1] then
-			self.bullet_x = self.bullet_x - 5
-		end
-		if self.bullet_y < self.target[2] then
-			self.bullet_y = self.bullet_y + 5
-		elseif self.bullet_y > self.target[2] then
-			self.bullet_y = self.bullet_y - 5
-		end
-	else
-		self.shooting = false
-	end
-end
-
-function Player:tileInRange(tilePos)
-	return tile_distance(self:current_position(), tilePos) <= self.dice
-end
-
-function Player:current_position()
-	return {self.characters[self.currentChar].x, self.characters[self.currentChar].y}
+function Player:current_char()
+	return self.characters[self.currentChar]
 end
