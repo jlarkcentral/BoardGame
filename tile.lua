@@ -1,7 +1,7 @@
 Tile = {}
 
 -- Constructor
-function Tile:new(xpos,ypos,type,tileImage)
+function Tile:new(xpos, ypos, type, tileImage)
     local object = {
     x = xpos,
     y = ypos,

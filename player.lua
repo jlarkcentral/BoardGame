@@ -21,36 +21,23 @@ function Player:new()
 end
 
 -- Update movement
-function Player:update(dt,mouse)
+function Player:update(board, mouse)
 	if self.turnState == self.turnDiceRolled then
 		if self.dice > 0 then
 			if not mouse.mousePressed then
-				if love.mouse.isDown("l") and mouse.mouseOverIsInRange then
-					self.dice = self.dice - tile_distance(self:current_char():position(), mouse.mouseOverTile)
-					self:current_char().x, self:current_char().y = mouse.mouseOverTile[1], mouse.mouseOverTile[2]
+				if left_click_on_blank_tile(board, mouse) then
+					self:move_current_char(mouse)
 				end
 				if love.mouse.isDown("r") then
-					if self:current_char().name == 'ranger' and mouse.mouseOverIsInRange then
-						self:current_char():shoot(mouse.mouseOverTile)
-						self.dice = self.dice - tile_distance(self:current_char():position(), mouse.mouseOverTile)
-					elseif self:current_char().name == 'shield' then
-						self:current_char():protect(self.dice)
-						self.dice = 0
-					-- add rogue
-					end
+					self:do_right_click_action(mouse)
 				end
 			end
 		else
-			self.turnState = self.turnFinished
-			self.currentChar = ( (self.currentChar + 1) % #(self.characters) )
-			if self.currentChar == 0 then
-				self.currentChar = #(self.characters)
-			end
+			self:finish_turn()
 		end
 	elseif self.turnState == self.turnFinished then
 		if love.keyboard.isDown(" ") then
-			self.dice = roll_dice()
-			self.turnState = self.turnDiceRolled
+			self:roll_dice()
 		end
 	end
 end
@@ -62,7 +49,8 @@ function Player:draw()
 	end
 end
 
-------------------------------------------------------------
+-------------------------------
+-------------------------------
 
 function Player:add_ranger()
 	table.insert(self.characters,Ranger:new())
@@ -93,6 +81,67 @@ function Player:go_to_start_position(board)
 	self.turnState = self.turnFinished
 end
 
+function Player:tile_in_range(tilePos)
+	return tile_distance(self:current_char():position(), tilePos) <= self.dice
+end
+
+function Player:current_char()
+	return self.characters[self.currentChar]
+end
+
+function Player:do_right_click_action(mouse)
+	if self:current_char().name == 'ranger' and mouse.mouseOverIsInRange then
+		self:current_char():shoot(mouse.mouseOverTile)
+		self.dice = self.dice - tile_distance(self:current_char():position(), mouse.mouseOverTile)
+	elseif self:current_char().name == 'shield' then
+		self:current_char():protect(self.dice)
+		self.dice = 0
+	end
+end
+
+function Player:move_current_char(mouse)
+	self.dice = self.dice - tile_distance(self:current_char():position(), mouse.mouseOverTile)
+	self:current_char().x, self:current_char().y = mouse.mouseOverTile[1], mouse.mouseOverTile[2]
+end
+
+function Player:finish_turn()
+	self.turnState = self.turnFinished
+	self.currentChar = ( (self.currentChar + 1) % #(self.characters) )
+	if self.currentChar == 0 then
+		self.currentChar = #(self.characters)
+	end
+end
+
+function Player:roll_dice()
+	local d = 0
+	local r = math.random(100)
+	if r >= 1 and r <= 5 then
+		d = 1
+	elseif r > 5 and r <= 20 then
+		d = 2
+	elseif r > 20 and r <= 50 then
+		d = 3
+	elseif r > 50 and r <= 80 then
+		d = 4
+	elseif r > 80 and r <= 95 then
+		d = 5
+	elseif r > 95 and r <= 100 then
+		d = 6
+	end
+	self.dice = d
+	self.turnState = self.turnDiceRolled
+end
+
+-------------------------------
+-------------------------------
+
+
+function left_click_on_blank_tile(board, mouse)
+	return love.mouse.isDown("l")
+		and mouse.mouseOverIsInRange
+		and board:get_tile(mouse.mouseOverTile[1]+1, mouse.mouseOverTile[2]+1).tileType == board.blankTile
+end
+
 function get_blank_tiles_y(board)
 	local btiles = {}
 	for _,t in ipairs(board.tiles) do
@@ -101,36 +150,4 @@ function get_blank_tiles_y(board)
 		end
 	end
 	return btiles
-end
-
-function roll_dice()
-	local r = math.random(100)
-	if r >= 1 and r <= 5 then
-		return 1
-	elseif r > 5 and r <= 20 then
-		return 2
-	elseif r > 20 and r <= 50 then
-		return 3
-	elseif r > 50 and r <= 80 then
-		return 4
-	elseif r > 80 and r <= 95 then
-		return 5
-	elseif r > 95 and r <= 100 then
-		return 6
-	end
-end
-
--- Shoot to target
--- function Player:shoot()
--- 	self.target = { (mouseOverTile[1] + 0.5)*TILE_PIXEL_SIZE, (mouseOverTile[2] + 0.5)*TILE_PIXEL_SIZE }
--- 	self.bullet_x, self.bullet_y = (self.x + 0.5)*TILE_PIXEL_SIZE, (self.y + 0.5)*TILE_PIXEL_SIZE
--- 	self.shooting = true
--- end
-
-function Player:tile_in_range(tilePos)
-	return tile_distance(self:current_char():position(), tilePos) <= self.dice
-end
-
-function Player:current_char()
-	return self.characters[self.currentChar]
 end

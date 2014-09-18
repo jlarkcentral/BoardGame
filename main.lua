@@ -27,7 +27,7 @@ function love.load()
 end
 
 function love.update(dt)
-	player:update(dt,mouse)
+	player:update(board, mouse)
 	board:update(player)
 	mouse:update(player)
 end
@@ -38,10 +38,8 @@ function love.draw()
 	-- board:drawDecoration(player)
 	mouse:draw()
 
-	if player.dice > 0 then
-		for i=1,player.dice do
-			love.graphics.draw(imageDice, i*70+300, 520)
-		end
+	for i=1,player.dice do
+		love.graphics.draw(imageDice, i*70+300, 520)
 	end
 	love.graphics.draw(imageBgChar, 0, 500, 0, 2)
 	love.graphics.draw(player:current_char().image, 0, 500, 0, 2)
@@ -59,6 +57,9 @@ function love.draw()
     -- love.graphics.print(tostring("villain: "..tostring(board.villainPositions[1][1])..","..tostring(board.villainPositions[1][2])), 200, 560)
     love.graphics.print(tostring("distance: "..tostring(tile_distance(player:current_char():position(),mouse.mouseOverTile))), 200, 560)
     love.graphics.print(tostring("mouseOverIsInRange: "..tostring(mouse.mouseOverIsInRange)), 200, 540)
+    love.graphics.print(tostring("tile type: "..board:get_tile(mouse.mouseOverTile[1]+1, mouse.mouseOverTile[2]+1).tileType), 200, 550)
+    love.graphics.print(tostring(board:get_tile(mouse.mouseOverTile[1]+1, mouse.mouseOverTile[2]+1).x..", "..
+    	board:get_tile(mouse.mouseOverTile[1]+1, mouse.mouseOverTile[2]+1).y), 350, 550)
 
 end
 

@@ -31,10 +31,12 @@ end
 function Board:initialize()
     for i=1,BOARD_Y_SIZE+1 do
         for j=1,BOARD_X_SIZE+1 do
-            local randomType = choose({self.blankTile, self.blockTile},{80,20})
+            local randomType = choose({self.blankTile, self.blockTile}, {80,20})
             table.insert(self.tiles, Tile:new(j, i, randomType, self:tile_image(randomType)))
+            self:get_tile(j, i).tileType = randomType
         end
     end
+    self:generate_enemies(2)
 end
 
 function Board:update(player)
@@ -43,20 +45,6 @@ function Board:update(player)
     elseif player.turnState == self.turnDiceRolled then
         self.villainMoved = false
     end
-    -- for i, p in ipairs(self.warfog) do
-    --     for j, v in ipairs(p) do
-    --         for _,char in ipairs(player.characters) do
-    --             if tileDistance({char.x,char.y}, {j-1,i-1}) < 4 then
-    --                 self.warfog[i][j] = 1
-    --             end
-    --         end
-    --         for _,v in ipairs(self.villainPositions) do
-    --             if tileDistance({v[1],v[2]}, {j,i}) < 2 then
-    --                 self.warfog[i][j] = 1
-    --             end
-    --         end
-    --     end
-    -- end
 end
 
 function Board:draw(player, mouse)
@@ -71,13 +59,13 @@ function Board:draw(player, mouse)
         local x, y = pos[1], pos[2]
         draw_on_tile(self.imageVillain, x-1, y-1)
     --     -- conditions on enemy neibourghood
-        if x < boardXSize then
+        if x < BOARD_X_SIZE then
             draw_on_tile(self.imageDanger, x, y-1)
         end
         if x > 1 then
             draw_on_tile(self.imageDanger, x-2, y-1)
         end
-        if y < boardYSize then
+        if y < BOARD_Y_SIZE then
             draw_on_tile(self.imageDanger, x-1, y)
         end
         if y > 1 then
@@ -135,7 +123,7 @@ function Board:villain_move(player)
             end
         end
         for j,char in ipairs(player.characters) do
-            if tileDistance(pos,{char.x, char.y}) <= 4 then
+            if tile_distance(pos,{char.x, char.y}) <= 4 then
                 villain_shoot()
             end
         end
@@ -165,10 +153,8 @@ end
 
 function Board:get_tile(x, y)
     for _,t in ipairs(self.tiles) do
-        if t.x == x then
-            if t.y == y then
-                return t
-            end
+        if t.x == x and t.y == y then
+            return t
         end
     end
 end
