@@ -8,6 +8,7 @@ function Board:new()
     tiles = {},
     villainPositions = {},
     villainMoved = false,
+    villainDelay = 0,
     imageBlank       = love.graphics.newImage('img/board/blank.png'),
     imageNeutraloor  = love.graphics.newImage('img/board/tileNeutraloor.png'),
     imageDanger      = love.graphics.newImage('img/board/danger.png'),
@@ -40,11 +41,11 @@ function Board:initialize()
 end
 
 function Board:update(player)
-    if player.turnState == player.turnFinished and not self.villainMoved then
+    if self.villainDelay == 1000 then
         self:villain_move(player)
-    elseif player.turnState == self.turnDiceRolled then
-        self.villainMoved = false
+        self.villainDelay = 0
     end
+    self.villainDelay = self.villainDelay + 1
 end
 
 function Board:draw(player, mouse)
@@ -122,11 +123,11 @@ function Board:villain_move(player)
                 self.villainPositions[i] = {pos[1],pos[2]-1}
             end
         end
-        for j,char in ipairs(player.characters) do
-            if tile_distance(pos,{char.x, char.y}) <= 4 then
-                villain_shoot()
-            end
-        end
+        -- for j,char in ipairs(player.characters) do
+        --     if tile_distance(pos,{char.x, char.y}) <= 4 then
+        --         villain_shoot()
+        --     end
+        -- end
     end
     self.villainMoved = true
 end
