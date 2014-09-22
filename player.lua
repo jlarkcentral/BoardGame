@@ -14,41 +14,31 @@ function Player:new()
     turnState = "",
     turnFinished = "turnFinished",
     turnDiceRolled = "turnDiceRolled",
-    dice = 0,
-    moved = false,
-    correctMatches = 0,
-    keypressed = '',
-    changedChar = false
+    dice = 0
     }
     setmetatable(object, { __index = Player })
     return object
 end
 
 -- Update movement
-function Player:update(board, rhythmPanel)
-	if key_pressed() == 'tab' and not self.changedChar then
-		self.currentChar = (self.currentChar + 1) % #self.characters
-		if self.currentChar == 0 then self.currentChar = #self.characters end
-		self.changedChar = true
-	elseif key_pressed() == ''
-		or not (rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510) then
-		self.moved = false
-		self.keypressed = ''
-	-- elseif self.keypressed == rhythmPanel.currentMove[1] and rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510 then
-	elseif rhythmPanel.currentMove[1] == 'dir' and rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510 then
-		self:move(self.keypressed, board, rhythmPanel)
-	-- else
-	-- 	self.combo = 0
-	end
-
-	if (key_pressed() == 'tab') == false then
-		self.changedChar = false
-	end
-
-	if board:get_tile(self:current_char().x+1, self:current_char().y+1).hasUpperLayer then
-		self:current_char().isHidden = true
-	else
-		self:current_char().isHidden = false
+function Player:update(board, mouse)
+	if self.turnState == self.turnDiceRolled then
+		if self.dice > 0 then
+			if not mouse.mousePressed then
+				if left_click_on_blank_tile(board, mouse) then
+					self:move_current_char(mouse)
+				end
+				if love.mouse.isDown("r") then
+					self:do_right_click_action(mouse)
+				end
+			end
+		else
+			self:finish_turn()
+		end
+	elseif self.turnState == self.turnFinished then
+		if love.keyboard.isDown(" ") then
+			self:roll_dice()
+		end
 	end
 end
 
@@ -63,15 +53,15 @@ end
 -------------------------------
 
 function Player:add_ranger()
-	table.insert(self.characters, Ranger:new())
+	table.insert(self.characters,Ranger:new())
 end
 
 function Player:add_shield()
-	table.insert(self.characters, Shield:new())
+	table.insert(self.characters,Shield:new())
 end
 
 function Player:add_rogue()
-	table.insert(self.characters, Rogue:new())
+	table.insert(self.characters,Rogue:new())
 end
 
 -- Place player at game start
@@ -99,76 +89,58 @@ function Player:current_char()
 	return self.characters[self.currentChar]
 end
 
-function Player:move(key, board, rhythmPanel)
-	if not self.moved then
-		if key == 'up' then
-			if is_on_board({self:current_char().x+1, self:current_char().y})
-				and board:get_tile(self:current_char().x+1, self:current_char().y).tileType == board.blankTile then
-				
-				self:current_char().y = self:current_char().y - 1
-				table.remove(rhythmPanel.moves, 1)
-				self.correctMatches = self.correctMatches + 1
-			end
-			self.moved = true
-		elseif key == 'down' then
-			if is_on_board({self:current_char().x+1, self:current_char().y+2})
-				and board:get_tile(self:current_char().x+1, self:current_char().y+2).tileType == board.blankTile then
-				
-				self:current_char().y = self:current_char().y + 1
-				table.remove(rhythmPanel.moves, 1)
-				self.correctMatches = self.correctMatches + 1
-			end
-			self.moved = true
-		elseif key == 'left' then
-			if is_on_board({self:current_char().x, self:current_char().y+1})
-				and board:get_tile(self:current_char().x, self:current_char().y+1).tileType == board.blankTile then
-				
-				self:current_char().x = self:current_char().x - 1
-				table.remove(rhythmPanel.moves, 1)
-				self.correctMatches = self.correctMatches + 1
-			end
-			self.moved = true
-		elseif key == 'right' then
-			if is_on_board({self:current_char().x+2, self:current_char().y+1})
-				and board:get_tile(self:current_char().x+2, self:current_char().y+1).tileType == board.blankTile then
-				
-				self:current_char().x = self:current_char().x + 1
-				table.remove(rhythmPanel.moves, 1)
-				self.correctMatches = self.correctMatches + 1
-			end
-			self.moved = true
-		end
+function Player:do_right_click_action(mouse)
+	if self:current_char().name == 'ranger' and mouse.mouseOverIsInRange then
+		self:current_char():shoot(mouse.mouseOverTile)
+		self.dice = self.dice - tile_distance(self:current_char():position(), mouse.mouseOverTile)
+	elseif self:current_char().name == 'shield' then
+		self:current_char():protect(self.dice)
+		self.dice = 0
 	end
 end
 
-function Player:possible_moves()
-	local moves = {}
-	if is_on_board({self:current_char().x+1, self:current_char().y})
-		and board:get_tile(self:current_char().x+1, self:current_char().y).tileType == board.blankTile then
-		
-		table.insert(moves, 'up')
-	end	
-	if is_on_board({self:current_char().x+1, self:current_char().y+2})
-		and board:get_tile(self:current_char().x+1, self:current_char().y+2).tileType == board.blankTile then
-		
-		table.insert(moves, 'down')
-	end	
-	if is_on_board({self:current_char().x, self:current_char().y+1})
-		and board:get_tile(self:current_char().x, self:current_char().y+1).tileType == board.blankTile then
-	
-		table.insert(moves, 'left')
-	end	
-	if is_on_board({self:current_char().x+2, self:current_char().y+1})
-		and board:get_tile(self:current_char().x+2, self:current_char().y+1).tileType == board.blankTile then
-		
-		table.insert(moves, 'right')
+function Player:move_current_char(mouse)
+	self.dice = self.dice - tile_distance(self:current_char():position(), mouse.mouseOverTile)
+	self:current_char().x, self:current_char().y = mouse.mouseOverTile[1], mouse.mouseOverTile[2]
+end
+
+function Player:finish_turn()
+	self.turnState = self.turnFinished
+	self.currentChar = ( (self.currentChar + 1) % #(self.characters) )
+	if self.currentChar == 0 then
+		self.currentChar = #(self.characters)
 	end
-	return moves
+end
+
+function Player:roll_dice()
+	local d = 0
+	local r = math.random(100)
+	if r >= 1 and r <= 5 then
+		d = 1
+	elseif r > 5 and r <= 20 then
+		d = 2
+	elseif r > 20 and r <= 50 then
+		d = 3
+	elseif r > 50 and r <= 80 then
+		d = 4
+	elseif r > 80 and r <= 95 then
+		d = 5
+	elseif r > 95 and r <= 100 then
+		d = 6
+	end
+	self.dice = d
+	self.turnState = self.turnDiceRolled
 end
 
 -------------------------------
 -------------------------------
 
+
+function left_click_on_blank_tile(board, mouse)
+	return love.mouse.isDown("l")
+		and mouse.mouseOverIsInRange
+		and board:get_tile(mouse.mouseOverTile[1]+1, mouse.mouseOverTile[2]+1).tileType == board.blankTile
+end
 
 function get_blank_tiles_y(board)
 	local btiles = {}
@@ -178,13 +150,4 @@ function get_blank_tiles_y(board)
 		end
 	end
 	return btiles
-end
-
-function key_pressed()
-	for _,k in ipairs({'up', 'down', 'left', 'right', 'tab'}) do
-		if love.keyboard.isDown(k) then
-			return k
-		end
-	end
-	return ''
 end

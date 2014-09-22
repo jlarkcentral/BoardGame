@@ -6,8 +6,6 @@ function Character:new()
     image = nil,
     x = 0,
     y = 0,
-    isKilled = false,
-    isHidden = false
     }
     setmetatable(object, { __index = Character })
     return object
