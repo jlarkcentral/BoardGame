@@ -40,9 +40,9 @@ end
 
 function is_on_board(pos)
 	return pos[1] > 0 
-		and pos[1] <= BOARD_X_SIZE
+		and pos[1] <= BOARD_X_SIZE+1
 		and pos[2] > 0
-		and pos[2] <= BOARD_Y_SIZE
+		and pos[2] <= BOARD_Y_SIZE+1
 end
 
 function tables_concat(t1,t2)

@@ -17,7 +17,8 @@ function Player:new()
     dice = 0,
     moved = false,
     correctMatches = 0,
-    keypressed = ''
+    keypressed = '',
+    changedChar = false
     }
     setmetatable(object, { __index = Player })
     return object
@@ -25,14 +26,29 @@ end
 
 -- Update movement
 function Player:update(board, rhythmPanel)
-	if key_pressed() == '' 
+	if key_pressed() == 'tab' and not self.changedChar then
+		self.currentChar = (self.currentChar + 1) % #self.characters
+		if self.currentChar == 0 then self.currentChar = #self.characters end
+		self.changedChar = true
+	elseif key_pressed() == ''
 		or not (rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510) then
 		self.moved = false
 		self.keypressed = ''
-	elseif self.keypressed == rhythmPanel.currentMove[1] and rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510 then
+	-- elseif self.keypressed == rhythmPanel.currentMove[1] and rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510 then
+	elseif rhythmPanel.currentMove[1] == 'dir' and rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510 then
 		self:move(self.keypressed, board, rhythmPanel)
+	-- else
+	-- 	self.combo = 0
+	end
+
+	if (key_pressed() == 'tab') == false then
+		self.changedChar = false
+	end
+
+	if board:get_tile(self:current_char().x+1, self:current_char().y+1).hasUpperLayer then
+		self:current_char().isHidden = true
 	else
-		self.combo = 0
+		self:current_char().isHidden = false
 	end
 end
 
@@ -81,11 +97,6 @@ end
 
 function Player:current_char()
 	return self.characters[self.currentChar]
-end
-
-function Player:move_current_char(mouse)
-	self.dice = self.dice - tile_distance(self:current_char():position(), mouse.mouseOverTile)
-	self:current_char().x, self:current_char().y = mouse.mouseOverTile[1], mouse.mouseOverTile[2]
 end
 
 function Player:move(key, board, rhythmPanel)
@@ -170,7 +181,7 @@ function get_blank_tiles_y(board)
 end
 
 function key_pressed()
-	for _,k in ipairs({'up', 'down', 'left', 'right'}) do
+	for _,k in ipairs({'up', 'down', 'left', 'right', 'tab'}) do
 		if love.keyboard.isDown(k) then
 			return k
 		end

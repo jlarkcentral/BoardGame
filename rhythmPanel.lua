@@ -12,12 +12,13 @@ function RhythmPanel:new()
     imageFrameWrong = love.graphics.newImage('img/rhythmPanel/wrong.png'),
 
     icons = {
-	    ['up']     = love.graphics.newImage('img/rhythmPanel/up.png'),
-	    ['down']   = love.graphics.newImage('img/rhythmPanel/down.png'),
-	    ['left']   = love.graphics.newImage('img/rhythmPanel/left.png'),
-	    ['right']  = love.graphics.newImage('img/rhythmPanel/right.png'),
+	    -- ['up']     = love.graphics.newImage('img/rhythmPanel/up.png'),
+	    -- ['down']   = love.graphics.newImage('img/rhythmPanel/down.png'),
+	    -- ['left']   = love.graphics.newImage('img/rhythmPanel/left.png'),
+	    -- ['right']  = love.graphics.newImage('img/rhythmPanel/right.png'),
     	['arrow']  = love.graphics.newImage('img/rhythmPanel/arrow.png'),
-    	['shield'] = love.graphics.newImage('img/rhythmPanel/shield.png')
+    	['shield'] = love.graphics.newImage('img/rhythmPanel/shield.png'),
+    	['dir'] = love.graphics.newImage('img/rhythmPanel/directions.png'),
 	    },
 
     moves = {},
@@ -32,7 +33,8 @@ end
 
 function RhythmPanel:update(player)
 	if #self.moves == 0 or self.moves[#self.moves][2] > self.next_in*100 then
-		local move = choose(tables_concat(player:possible_moves(), {'arrow','shield'}))
+		-- local move = choose(tables_concat(player:possible_moves(), {'arrow','shield'}))
+		local move = choose({'dir','arrow','shield'},{8,1,1})
 		table.insert(self.moves, {move, 0})
 		self.next_in = choose({1,2,3})
 	end
