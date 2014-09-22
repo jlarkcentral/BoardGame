@@ -37,3 +37,17 @@ end
 function pixel_position(x, y)
 	return {x*TILE_PIXEL_SIZE, y*TILE_PIXEL_SIZE}
 end
+
+function is_on_board(pos)
+	return pos[1] > 0 
+		and pos[1] <= BOARD_X_SIZE+1
+		and pos[2] > 0
+		and pos[2] <= BOARD_Y_SIZE+1
+end
+
+function tables_concat(t1,t2)
+    for i=1,#t2 do
+        t1[#t1+1] = t2[i]
+    end
+    return t1
+end
