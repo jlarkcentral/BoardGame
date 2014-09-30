@@ -12,20 +12,11 @@ function love.load()
 	require "utils"
 
 	-- initialization
-	imageDice = love.graphics.newImage('img/game/dice.png')
-    imageBgChar = love.graphics.newImage('img/game/blank.png')
-
-    music = love.audio.newSource( 'img/rhythmPanel/Barcroft45_-_Above_and_Ahead.mp3', 'static' )
-    love.audio.setVolume(0)
-
-    player = Player:new()
-    player:add_ranger()
-    player:add_shield()
-    -- player:add_rogue()
-
-    board = Board:new()
-
-    rhythmPanel = RhythmPanel:new()
+	imageDice   = love.graphics.newImage('img/game/dice.png')
+	imageBgChar = love.graphics.newImage('img/game/blank.png')
+	
+	music       = love.audio.newSource( 'img/rhythmPanel/Barcroft45_-_Above_and_Ahead.mp3', 'static' )
+    love.audio.setVolume(0.3)
 
     restart()
 end
@@ -71,11 +62,15 @@ end
 -------------------------
 
 function restart()
-	board.villainPositions = {}
+    board = Board:new()
     board:initialize()
     board:generate_end_position()
+
+    player = Player:new()
+    player:add_ranger()
+    player:add_shield()
     player:go_to_start_position(board)
-    rhythmPanel = {}
+    
     rhythmPanel = RhythmPanel:new()
     music:stop()
     music:play()

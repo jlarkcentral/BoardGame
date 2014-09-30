@@ -9,16 +9,16 @@ function Player:new()
 	require "rogue"
 
     local object = {
-    characters = {},
-    currentChar = 1,
-    turnState = "",
-    turnFinished = "turnFinished",
-    turnDiceRolled = "turnDiceRolled",
-    dice = 0,
-    moved = false,
-    correctMatches = 0,
-    keypressed = '',
-    changedChar = false
+	characters     = {},
+	currentChar    = 1,
+	turnState      = "",
+	turnFinished   = "turnFinished",
+	turnDiceRolled = "turnDiceRolled",
+	dice           = 0,
+	moved          = false,
+	correctMatches = 0,
+	keypressed     = '',
+	changedChar    = false
     }
     setmetatable(object, { __index = Player })
     return object
@@ -28,17 +28,16 @@ end
 function Player:update(board, rhythmPanel)
 	if key_pressed() == 'tab' and not self.changedChar then
 		self.currentChar = (self.currentChar + 1) % #self.characters
-		if self.currentChar == 0 then self.currentChar = #self.characters end
+		if self.currentChar == 0 then 
+			self.currentChar = #self.characters 
+		end
 		self.changedChar = true
 	elseif key_pressed() == ''
-		or not (rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510) then
+			or not (rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510) then
 		self.moved = false
 		self.keypressed = ''
-	-- elseif self.keypressed == rhythmPanel.currentMove[1] and rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510 then
 	elseif rhythmPanel.currentMove[1] == 'dir' and rhythmPanel.currentMove[2] >= 490 and rhythmPanel.currentMove[2] <= 510 then
 		self:move(self.keypressed, board, rhythmPanel)
-	-- else
-	-- 	self.combo = 0
 	end
 
 	if (key_pressed() == 'tab') == false then
@@ -76,7 +75,7 @@ end
 
 -- Place player at game start
 function Player:go_to_start_position(board)
-	local btiles = get_blank_tiles_y(board)
+	local btiles = board:get_blank_tiles_y()
 	for i,char in ipairs(self.characters) do
 		char.x = 0
 		local r = choose(btiles)
@@ -101,44 +100,27 @@ end
 
 function Player:move(key, board, rhythmPanel)
 	if not self.moved then
-		if key == 'up' then
-			if is_on_board({self:current_char().x+1, self:current_char().y})
-				and board:get_tile(self:current_char().x+1, self:current_char().y).tileType == board.blankTile then
-				
-				self:current_char().y = self:current_char().y - 1
-				table.remove(rhythmPanel.moves, 1)
-				self.correctMatches = self.correctMatches + 1
-			end
-			self.moved = true
-		elseif key == 'down' then
-			if is_on_board({self:current_char().x+1, self:current_char().y+2})
-				and board:get_tile(self:current_char().x+1, self:current_char().y+2).tileType == board.blankTile then
-				
-				self:current_char().y = self:current_char().y + 1
-				table.remove(rhythmPanel.moves, 1)
-				self.correctMatches = self.correctMatches + 1
-			end
-			self.moved = true
-		elseif key == 'left' then
-			if is_on_board({self:current_char().x, self:current_char().y+1})
-				and board:get_tile(self:current_char().x, self:current_char().y+1).tileType == board.blankTile then
-				
-				self:current_char().x = self:current_char().x - 1
-				table.remove(rhythmPanel.moves, 1)
-				self.correctMatches = self.correctMatches + 1
-			end
-			self.moved = true
-		elseif key == 'right' then
-			if is_on_board({self:current_char().x+2, self:current_char().y+1})
-				and board:get_tile(self:current_char().x+2, self:current_char().y+1).tileType == board.blankTile then
-				
-				self:current_char().x = self:current_char().x + 1
-				table.remove(rhythmPanel.moves, 1)
-				self.correctMatches = self.correctMatches + 1
-			end
-			self.moved = true
+		local moves = self:possible_moves()
+		if key == 'up' and contains(moves, 'up') then
+			self:current_char().y = self:current_char().y - 1
+			self:end_move(rhythmPanel)
+		elseif key == 'down' and contains(moves, 'down') then
+			self:current_char().y = self:current_char().y + 1
+			self:end_move(rhythmPanel)
+		elseif key == 'left' and contains(moves, 'left') then
+			self:current_char().x = self:current_char().x - 1
+			self:end_move(rhythmPanel)
+		elseif key == 'right' and contains(moves, 'right') then
+			self:current_char().x = self:current_char().x + 1
+			self:end_move(rhythmPanel)
 		end
 	end
+end
+
+function Player:end_move(rhythmPanel)
+	table.remove(rhythmPanel.moves, 1)
+	self.correctMatches = self.correctMatches + 1
+	self.moved = true
 end
 
 function Player:possible_moves()
@@ -170,15 +152,7 @@ end
 -------------------------------
 
 
-function get_blank_tiles_y(board)
-	local btiles = {}
-	for _,t in ipairs(board.tiles) do
-		if t.x == 1 and t.tileType == board.blankTile then
-			table.insert(btiles, t.y)
-		end
-	end
-	return btiles
-end
+
 
 function key_pressed()
 	for _,k in ipairs({'up', 'down', 'left', 'right', 'tab'}) do

@@ -3,9 +3,9 @@ Character = {}
 -- Constructor
 function Character:new()
     local object = {
-    image = nil,
-    x = 0,
-    y = 0,
+    image    = nil,
+    x        = 0,
+    y        = 0,
     isKilled = false,
     isHidden = false
     }
@@ -14,7 +14,7 @@ function Character:new()
 end
 
 function Character:draw()
-    draw_on_tile(self.image, self.x, self.y)    
+    draw_on_tile(self.image, self:position())    
 end
 
 function Character:position()
