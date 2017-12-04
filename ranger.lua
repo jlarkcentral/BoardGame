@@ -27,6 +27,9 @@ function Ranger:draw()
     end
 end
 
+---------------------------------------
+---------------------------------------
+
 -- Shoot to target
 function Ranger:shoot(mouseOverTile)
     self.target = pixel_position(mouseOverTile[1] + 0.5, mouseOverTile[2] + 0.5)

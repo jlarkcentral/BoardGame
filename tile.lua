@@ -18,8 +18,8 @@ function Tile:new(xpos, ypos, type, tileImage)
 end
 
 function Tile:draw()
-	draw_on_tile(self.image, (self.x-1), (self.y-1))
+	draw_on_tile(self.image, (self.x), (self.y))
 	if self.isWarfoged then
-		draw_on_tile(self.imageWarfoged, (self.x-1), (self.y-1))
+		draw_on_tile(self.imageWarfoged, (self.x), (self.y))
 	end
 end

@@ -4,8 +4,8 @@
 
 -- global params
 TILE_PIXEL_SIZE = 50
-BOARD_X_SIZE = 15
-BOARD_Y_SIZE = 9
+BOARD_X_SIZE = 16
+BOARD_Y_SIZE = 10
 
 function tile_distance(t1, t2)
     return math.abs(t2[1]-t1[1]) + math.abs(t2[2]-t1[2])
@@ -31,7 +31,7 @@ function choose(table, weights)
 end
 
 function draw_on_tile(image, x, y)
-	love.graphics.draw(image, x*TILE_PIXEL_SIZE, y*TILE_PIXEL_SIZE)
+	love.graphics.draw(image, (x-1)*TILE_PIXEL_SIZE, (y-1)*TILE_PIXEL_SIZE)
 end
 
 function pixel_position(x, y)

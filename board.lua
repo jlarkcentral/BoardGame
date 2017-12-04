@@ -22,63 +22,55 @@ function Board:new()
 
     blankTile = "blankTile",
     blockTile = "blockTile",
-
+    selectedTile = {1, 1},
     }
     setmetatable(object, { __index = Board })
     return object
 end
 
 function Board:initialize()
-    for i=1,BOARD_Y_SIZE+1 do
-        for j=1,BOARD_X_SIZE+1 do
+    for i=1,BOARD_Y_SIZE do
+        for j=1,BOARD_X_SIZE do
             local randomType = choose({self.blankTile, self.blockTile}, {80,20})
             table.insert(self.tiles, Tile:new(j, i, randomType, self:tile_image(randomType)))
             self:get_tile(j, i).tileType = randomType
         end
     end
-    self:generate_enemies(2)
 end
 
 function Board:update(player)
-    if player.turnState == player.turnFinished and not self.villainMoved then
-        self:villain_move(player)
-    elseif player.turnState == self.turnDiceRolled then
-        self.villainMoved = false
+    if not joystick:isDown(1) then
+        self.selectedTile = player:current_char():position()
+        local x = self.selectedTile[1]
+        local y = self.selectedTile[2]
+        if joystick:getAxis(1) < -0.5 then
+            x = math.max(1, x - 1)
+        elseif joystick:getAxis(1) > 0.5 then
+            x = math.min(x + 1, BOARD_X_SIZE)
+        end
+        if joystick:getAxis(2) < -0.5 then
+            y = math.max(1, y - 1)
+        elseif joystick:getAxis(2) > 0.5 then
+            y = math.min(y + 1, BOARD_Y_SIZE)
+        end
+        self.selectedTile = { x, y }
     end
 end
 
-function Board:draw(player, mouse)
+function Board:draw(player)
     for i,tile in ipairs(self.tiles) do
-        if tile_distance(player:current_char():position(), {tile.x-1,tile.y-1}) < 4 then
+        if tile_distance(player:current_char():position(), {tile.x, tile.y}) < 4 then
             tile.isWarfoged = false
         end
         tile:draw()
     end
-
-    for i, pos in ipairs(self.villainPositions) do
-        local x, y = pos[1], pos[2]
-        draw_on_tile(self.imageVillain, x-1, y-1)
-    --     -- conditions on enemy neibourghood
-        if x < BOARD_X_SIZE then
-            draw_on_tile(self.imageDanger, x, y-1)
-        end
-        if x > 1 then
-            draw_on_tile(self.imageDanger, x-2, y-1)
-        end
-        if y < BOARD_Y_SIZE then
-            draw_on_tile(self.imageDanger, x-1, y)
-        end
-        if y > 1 then
-            draw_on_tile(self.imageDanger, x-1, y-2)
-        end
-    end
-
-    if mouse.mouseOverIsInRange then
-        draw_on_tile(self.imageFrame, mouse.mouseOverTile[1], mouse.mouseOverTile[2])
+    if self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType ~= self.blockTile then
+        draw_on_tile(self.imageFrame, self.selectedTile[1], self.selectedTile[2])
     end
 end
 
--- other functions
+-----------------------------------
+-----------------------------------
 
 function Board:tile_image(tileType)
     if tileType == self.blankTile then
@@ -87,69 +79,6 @@ function Board:tile_image(tileType)
         return self.imageBlock
     end
 end
-
-function Board:generate_end_position()
-    
-end
-
-function Board:generate_enemies(nbEnemies)
-    for n=1,nbEnemies do
-        local x = math.random(5,BOARD_X_SIZE)
-        local y = math.random(1,BOARD_Y_SIZE)
-        table.insert(self.villainPositions,{x,y})
-        self:get_tile(x,y).tileType = self.blankTile
-        self:get_tile(x,y).image = self.imageBlank
-    end
-end
-
-
-
-function Board:villain_move(player)
-    love.graphics.print("villain move", 100, 580)
-    for i,pos in ipairs(self.villainPositions) do
-        -- TODO redo random movement
-        local dir = math.random(10)
-        if (dir <= 5) then
-            if (pos[1] < player:current_char().x) then
-                self.villainPositions[i] = {pos[1]+1,pos[2]}
-            elseif (pos[1] > player:current_char().x) then
-                self.villainPositions[i] = {pos[1]-1,pos[2]}
-            end
-        else
-            if (pos[2] < player:current_char().y) then
-                self.villainPositions[i] = {pos[1],pos[2]+1}
-            elseif (pos[2] > player:current_char().y) then
-                self.villainPositions[i] = {pos[1],pos[2]-1}
-            end
-        end
-        for j,char in ipairs(player.characters) do
-            if tile_distance(pos,{char.x, char.y}) <= 4 then
-                villain_shoot()
-            end
-        end
-    end
-    self.villainMoved = true
-end
-
--- function Board:drawDecoration(player)
---     love.graphics.draw(self.imageBorder, 0, 0)
---     for y,tab in ipairs(self.tiles) do
---         for x,value in ipairs(tab) do
---             if self.warfog[y][x] == 1 then
---                 if value == 1 then
---                     love.graphics.draw(self.imageGrass, (x-1)*tilePixelSize, (y-1)*tilePixelSize)
---                 elseif value == 2 then
---                     love.graphics.draw(self.imageGrass2, (x-1)*tilePixelSize, (y-1)*tilePixelSize)
---                 end
---             elseif self.warfog[y][x] == 0 then
---                 love.graphics.draw(self.imageCloud, (x-1)*tilePixelSize, (y-1)*tilePixelSize)
---             end
---             if not player:tileInRange({x-1,y-1}) then
---                 love.graphics.draw(self.imageUnreachable, (x-1)*tilePixelSize, (y-1)*tilePixelSize)
---             end
---         end
---     end
--- end
 
 function Board:get_tile(x, y)
     for _,t in ipairs(self.tiles) do

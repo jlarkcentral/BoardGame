@@ -4,8 +4,8 @@ Character = {}
 function Character:new()
     local object = {
     image = nil,
-    x = 0,
-    y = 0,
+    x = 1,
+    y = 1,
     }
     setmetatable(object, { __index = Character })
     return object

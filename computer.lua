@@ -1,9 +1,9 @@
-Player = {}
+Computer = {}
 
 
 
 -- Constructor
-function Player:new()
+function Computer:new()
 	require "ranger"
 	require "shield"
 	require "rogue"
@@ -13,22 +13,17 @@ function Player:new()
     currentChar = 1,
     turnState = "",
     }
-    setmetatable(object, { __index = Player })
+    setmetatable(object, { __index = Computer })
     return object
 end
 
 -- Update movement
-function Player:update(board)
-	if joystick:isDown(1) then
-		if board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType ~= board.blockTile then
-			self:current_char().x = board.selectedTile[1]
-			self:current_char().y = board.selectedTile[2]
-		end
-	end
+function Computer:update(board)
+
 end
 
 -- Draw player & player items
-function Player:draw()
+function Computer:draw()
 	for i,char in ipairs(self.characters) do
 		char:draw()
 	end
@@ -37,23 +32,23 @@ end
 -------------------------------
 -------------------------------
 
-function Player:add_ranger()
+function Computer:add_ranger()
 	table.insert(self.characters, Ranger:new())
 end
 
-function Player:add_shield()
+function Computer:add_shield()
 	table.insert(self.characters, Shield:new())
 end
 
-function Player:add_rogue()
+function Computer:add_rogue()
 	table.insert(self.characters, Rogue:new())
 end
 
 -- Place player at game start
-function Player:go_to_start_position(board)
+function Computer:go_to_start_position(board)
 	local btiles = get_blank_tiles_y(board)
 	for i,char in ipairs(self.characters) do
-		char.x = 1
+		char.x = 16
 		local r = choose(btiles)
 		char.y = r
 		for i,v in ipairs(btiles) do
@@ -66,15 +61,15 @@ function Player:go_to_start_position(board)
 	self.turnState = self.turnFinished
 end
 
-function Player:tile_in_range(tilePos)
+function Computer:tile_in_range(tilePos)
 	return tile_distance(self:current_char():position(), tilePos) <= self.dice
 end
 
-function Player:current_char()
+function Computer:current_char()
 	return self.characters[self.currentChar]
 end
 
-function Player:finish_turn()
+function Computer:finish_turn()
 	self.turnState = self.turnFinished
 	self.currentChar = ( (self.currentChar + 1) % #(self.characters) )
 	if self.currentChar == 0 then

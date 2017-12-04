@@ -5,8 +5,8 @@ function Rogue:new()
     local object = {
     name = 'rogue',
     image = love.graphics.newImage('img/player/player_rogue.png'),
-    x = 0,
-    y = 0,
+    x = 1,
+    y = 1,
     }
     setmetatable(object, { __index = Rogue })
     return object
