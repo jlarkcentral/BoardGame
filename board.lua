@@ -2,38 +2,47 @@ Board = {}
 
 -- Constructor
 function Board:new()
-    require "tile"
+    require 'tile'
+    require 'banana'
+    require 'rock'
 
     local object = {
-    tiles = {},
-    villainPositions = {},
-    villainMoved = false,
-    imageBlank       = love.graphics.newImage('img/board/blank.png'),
-    imageNeutraloor  = love.graphics.newImage('img/board/tileNeutraloor.png'),
-    imageDanger      = love.graphics.newImage('img/board/danger.png'),
-    imageEnd         = love.graphics.newImage('img/board/end.png'),
-    imageBlock       = love.graphics.newImage('img/board/block.png'),
-    imageFrame       = love.graphics.newImage('img/board/frame.png'),
-    imageVillain     = love.graphics.newImage('img/board/villain.png'),
-    imageGrass       = love.graphics.newImage('img/board/grass.png'),
-    imageGrass2      = love.graphics.newImage('img/board/grass2.png'),
-    imageCloud       = love.graphics.newImage('img/board/cloud.png'),
-    imageBorder      = love.graphics.newImage('img/board/border.png'),
-
-    blankTile = "blankTile",
-    blockTile = "blockTile",
-    selectedTile = {1, 1},
+        tiles = {},
+        items = {},
+        blankTiles = {},
+        blockTiles = {},
+        villainPositions = {},
+        villainMoved = false,
+        imageBlank = love.graphics.newImage('img/board/blank.png'),
+        imageNeutraloor = love.graphics.newImage('img/board/tileNeutraloor.png'),
+        imageDanger = love.graphics.newImage('img/board/danger.png'),
+        imageEnd = love.graphics.newImage('img/board/end.png'),
+        imageBlock = love.graphics.newImage('img/board/block.png'),
+        imageFrame = love.graphics.newImage('img/board/frame.png'),
+        imageVillain = love.graphics.newImage('img/board/villain.png'),
+        imageGrass = love.graphics.newImage('img/board/grass.png'),
+        imageGrass2 = love.graphics.newImage('img/board/grass2.png'),
+        imageCloud = love.graphics.newImage('img/board/cloud.png'),
+        imageBorder = love.graphics.newImage('img/board/border.png'),
+        blankTile = "blankTile",
+        blockTile = "blockTile",
+        selectedTile = { 1, 1 },
     }
     setmetatable(object, { __index = Board })
     return object
 end
 
 function Board:initialize()
-    for i=1,BOARD_Y_SIZE do
-        for j=1,BOARD_X_SIZE do
-            local randomType = choose({self.blankTile, self.blockTile}, {80,20})
-            table.insert(self.tiles, Tile:new(j, i, randomType, self:tile_image(randomType)))
-            self:get_tile(j, i).tileType = randomType
+    for i = 1, BOARD_Y_SIZE do
+        for j = 1, BOARD_X_SIZE do
+            local randomType = choose({ self.blankTile, self.blockTile }, { 80, 20 })
+            local newTile = Tile:new(j, i, randomType, self:tile_image(randomType))
+            table.insert(self.tiles, newTile)
+            if randomType == self.blankTile then
+                table.insert(self.blankTiles, newTile)
+            else
+                table.insert(self.blockTiles, newTile)
+            end
         end
     end
 end
@@ -58,8 +67,8 @@ function Board:update(player)
 end
 
 function Board:draw(player)
-    for i,tile in ipairs(self.tiles) do
-        if tile_distance(player:current_char():position(), {tile.x, tile.y}) < 4 then
+    for i, tile in ipairs(self.tiles) do
+        if tile_distance(player:current_char():position(), { tile.x, tile.y }) < 4 then
             tile.isWarfoged = false
         end
         tile:draw()
@@ -67,11 +76,13 @@ function Board:draw(player)
     if self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType ~= self.blockTile then
         draw_on_tile(self.imageFrame, self.selectedTile[1], self.selectedTile[2])
     end
+    for i, item in ipairs(self.items) do
+        item:draw()
+    end
 end
 
 -----------------------------------
 -----------------------------------
-
 function Board:tile_image(tileType)
     if tileType == self.blankTile then
         return self.imageBlank
@@ -81,9 +92,21 @@ function Board:tile_image(tileType)
 end
 
 function Board:get_tile(x, y)
-    for _,t in ipairs(self.tiles) do
+    for _, t in ipairs(self.tiles) do
         if t.x == x and t.y == y then
             return t
         end
     end
+end
+
+function Board:add_item()
+    local itemType = choose({ 'banana', 'rock' })
+    local tileInd = math.random(#self.blankTiles)
+    local tile = self.blankTiles[tileInd]
+    if itemType == 'banana' then
+        table.insert(self.items, Banana:new(tile.x, tile.y))
+    elseif itemType == 'rock' then
+        table.insert(self.items, Rock:new(tile.x, tile.y))
+    end
+    table.remove(self.blankTiles, tileInd)
 end

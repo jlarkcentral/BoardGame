@@ -45,6 +45,9 @@ function love.draw()
 	-- board:drawDecoration(player)
 
 	love.graphics.draw(player:current_char().image, 0, 500, 0, 2)
+    if player:current_char().heldItem ~= nil then
+	    love.graphics.draw(player:current_char().heldItem.image, 100, 500, 0, 2)
+    end
 
     -- INFO
     love.graphics.print(tostring("player: "..player:current_char().x..","..player:current_char().y), 200, 520)
@@ -56,6 +59,13 @@ end
 
 function restart()
     board:initialize()
+    board:add_item()
+    board:add_item()
+    board:add_item()
+    board:add_item()
+    --for i, item in ipairs(board.items) do
+     --   print(item.x, item.y)
+    --end
     player:go_to_start_position(board)
     computer:go_to_start_position(board)
 end
