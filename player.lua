@@ -12,6 +12,9 @@ function Player:new()
         characters = {},
         currentChar = 1,
         turnState = "",
+        useItemMode = false,
+        canUseItem = true,
+        useItemDelay = 0
     }
     setmetatable(object, { __index = Player })
     return object
@@ -19,7 +22,7 @@ end
 
 -- Update movement
 function Player:update(board)
-    if joystick:isDown(1) then
+    if joystick:isDown(1) and not self.useItemMode then
         if board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType ~= board.blockTile then
             self:current_char().x = board.selectedTile[1]
             self:current_char().y = board.selectedTile[2]
@@ -33,10 +36,25 @@ function Player:update(board)
             end
         end
     else
-        if joystick:isDown(2) then
-            print('dfsf')
+        if joystick:isDown(2) and not self.useItemMode then
+            self.useItemMode = true
+            self.canUseItem = false
+            self.useItemDelay = 20
+            board.imageFrame = board.imageFrameUseItem
         end
     end
+    if self.useItemMode then
+        if not joystick:isDown(2) then
+            self.canUseItem = true
+            self.useItemDelay = (self.useItemDelay + 1) % 20
+        elseif self.canUseItem then
+            self:current_char().heldItem:use(board)
+            self.useItemMode = false
+            self:current_char().heldItem = nil
+            board.imageFrame = board.imageFrameNormal
+        end
+    end
+
 end
 
 -- Draw player & player items
@@ -93,6 +111,9 @@ function Player:finish_turn()
     end
 end
 
+function Player:use_item()
+    self.useItemMode = true
+end
 
 function get_blank_tiles_y(board)
     local btiles = {}

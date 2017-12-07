@@ -19,6 +19,8 @@ function Board:new()
         imageEnd = love.graphics.newImage('img/board/end.png'),
         imageBlock = love.graphics.newImage('img/board/block.png'),
         imageFrame = love.graphics.newImage('img/board/frame.png'),
+        imageFrameNormal = love.graphics.newImage('img/board/frame.png'),
+        imageFrameUseItem = love.graphics.newImage('img/board/frameUse.png'),
         imageVillain = love.graphics.newImage('img/board/villain.png'),
         imageGrass = love.graphics.newImage('img/board/grass.png'),
         imageGrass2 = love.graphics.newImage('img/board/grass2.png'),
@@ -49,35 +51,40 @@ end
 
 function Board:update(player)
     if not joystick:isDown(1) then
-        self.selectedTile = player:current_char():position()
-        local x = self.selectedTile[1]
-        local y = self.selectedTile[2]
-        if joystick:getAxis(1) < -0.5 then
-            x = math.max(1, x - 1)
-        elseif joystick:getAxis(1) > 0.5 then
-            x = math.min(x + 1, BOARD_X_SIZE)
+        if not player.useItemMode then
+            self.selectedTile = player:current_char():position()
+            local x = self.selectedTile[1]
+            local y = self.selectedTile[2]
+            if joystick:getAxis(1) < -0.5 then
+                x = math.max(1, x - 1)
+            elseif joystick:getAxis(1) > 0.5 then
+                x = math.min(x + 1, BOARD_X_SIZE)
+            end
+            if joystick:getAxis(2) < -0.5 then
+                y = math.max(1, y - 1)
+            elseif joystick:getAxis(2) > 0.5 then
+                y = math.min(y + 1, BOARD_Y_SIZE)
+            end
+            self.selectedTile = { x, y }
+        elseif player.useItemDelay == 0 then
+            local tile = choose(self.blankTiles)
+            self.selectedTile = {tile.x, tile.y}
         end
-        if joystick:getAxis(2) < -0.5 then
-            y = math.max(1, y - 1)
-        elseif joystick:getAxis(2) > 0.5 then
-            y = math.min(y + 1, BOARD_Y_SIZE)
-        end
-        self.selectedTile = { x, y }
     end
 end
 
 function Board:draw(player)
     for i, tile in ipairs(self.tiles) do
-        if tile_distance(player:current_char():position(), { tile.x, tile.y }) < 4 then
+        if tile_distance(player:current_char():position(), { tile.x, tile.y }) < 3 then
             tile.isWarfoged = false
         end
         tile:draw()
     end
-    if self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType ~= self.blockTile then
-        draw_on_tile(self.imageFrame, self.selectedTile[1], self.selectedTile[2])
-    end
     for i, item in ipairs(self.items) do
         item:draw()
+    end
+    if self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType ~= self.blockTile then
+        draw_on_tile(self.imageFrame, self.selectedTile[1], self.selectedTile[2])
     end
 end
 

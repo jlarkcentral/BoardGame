@@ -18,3 +18,7 @@ function Rock:draw()
     --Item.draw(self)
     draw_on_tile(self.image, self.x, self.y)
 end
+
+function Rock:use(board)
+    board:get_tile(board.selectedTile[1], board.selectedTile[2]).image = board.imageDanger
+end

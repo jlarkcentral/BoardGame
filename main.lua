@@ -29,6 +29,19 @@ function love.load()
     restart()
 end
 
+function restart()
+    board:initialize()
+    board:add_item()
+    board:add_item()
+    board:add_item()
+    board:add_item()
+    --for i, item in ipairs(board.items) do
+    --   print(item.x, item.y)
+    --end
+    player:go_to_start_position(board)
+    computer:go_to_start_position(board)
+end
+
 function love.update(dt)
 	player:update(board)
     computer:update(board)
@@ -55,17 +68,4 @@ function love.draw()
     love.graphics.print(tostring("selected tile: "..board.selectedTile[1] .. "," .. board.selectedTile[2]), 200, 540)
     love.graphics.print(tostring("selected tile type: "..board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType), 200, 550)
 
-end
-
-function restart()
-    board:initialize()
-    board:add_item()
-    board:add_item()
-    board:add_item()
-    board:add_item()
-    --for i, item in ipairs(board.items) do
-     --   print(item.x, item.y)
-    --end
-    player:go_to_start_position(board)
-    computer:go_to_start_position(board)
 end
