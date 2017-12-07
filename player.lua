@@ -53,6 +53,9 @@ function Player:update(board)
             self:current_char().heldItem = nil
             board.imageFrame = board.imageFrameNormal
         end
+        joystick:setVibration(0.5, 0.5)
+    else
+        joystick:setVibration()
     end
 
 end

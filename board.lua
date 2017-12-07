@@ -68,14 +68,14 @@ function Board:update(player)
             self.selectedTile = { x, y }
         elseif player.useItemDelay == 0 then
             local tile = choose(self.blankTiles)
-            self.selectedTile = {tile.x, tile.y}
+            self.selectedTile = {tile.x, tile.y }
         end
     end
 end
 
 function Board:draw(player)
     for i, tile in ipairs(self.tiles) do
-        if tile_distance(player:current_char():position(), { tile.x, tile.y }) < 3 then
+        if tile_distance(player:current_char():position(), { tile.x, tile.y }) < 2 then
             tile.isWarfoged = false
         end
         tile:draw()
