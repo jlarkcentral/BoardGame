@@ -22,42 +22,21 @@ end
 
 -- Update movement
 function Player:update(board)
-    if joystick:isDown(1) and not self.useItemMode then
-        if board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType ~= board.blockTile then
-            self:current_char().x = board.selectedTile[1]
-            self:current_char().y = board.selectedTile[2]
+    if joystick:isDown(1) and self.released then
+        local type = board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType
+        if type == board.blankTile then
+            self:move(board)
+        elseif type == board.blockTile then
+            self:push(board)
         end
+        self.released = false
     end
     if self:current_char().heldItem == nil then
-        for i, item in ipairs(board.items) do
-            if self:current_char().x == item.x and self:current_char().y == item.y then
-                self:current_char().heldItem = item
-                table.remove(board.items, i)
-            end
-        end
-    else
-        if joystick:isDown(2) and not self.useItemMode then
-            self.useItemMode = true
-            self.canUseItem = false
-            self.useItemDelay = 20
-            board.imageFrame = board.imageFrameUseItem
-        end
+        self:check_items(board)
     end
-    if self.useItemMode then
-        if not joystick:isDown(2) then
-            self.canUseItem = true
-            self.useItemDelay = (self.useItemDelay + 1) % 20
-        elseif self.canUseItem then
-            self:current_char().heldItem:use(board)
-            self.useItemMode = false
-            self:current_char().heldItem = nil
-            board.imageFrame = board.imageFrameNormal
-        end
-        joystick:setVibration(0.5, 0.5)
-    else
-        joystick:setVibration()
+    if not joystick:isDown(1) then
+        self.released = true
     end
-
 end
 
 -- Draw player & player items
@@ -114,8 +93,34 @@ function Player:finish_turn()
     end
 end
 
-function Player:use_item()
-    self.useItemMode = true
+function Player:move(board)
+    self:current_char().x = board.selectedTile[1]
+    self:current_char().y = board.selectedTile[2]
+end
+
+function Player:push(board)
+    if self:current_char().x == board.selectedTile[1] then
+        if self:current_char().y > board.selectedTile[2] then
+            board:push_to_the_max_up()
+        elseif self:current_char().y < board.selectedTile[2] then
+            board:push_to_the_max_down()
+        end
+    elseif self:current_char().y == board.selectedTile[2] then
+        if self:current_char().x > board.selectedTile[1] then
+            board:push_to_the_max_left()
+        elseif self:current_char().x < board.selectedTile[1] then
+            board:push_to_the_max_right()
+        end
+    end
+end
+
+function Player:check_items(board)
+    for i, item in ipairs(board.items) do
+        if self:current_char().x == item.x and self:current_char().y == item.y then
+            self:current_char().heldItem = item
+            table.remove(board.items, i)
+        end
+    end
 end
 
 function get_blank_tiles_y(board)

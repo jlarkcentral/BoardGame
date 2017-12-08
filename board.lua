@@ -51,25 +51,20 @@ end
 
 function Board:update(player)
     if not joystick:isDown(1) then
-        if not player.useItemMode then
-            self.selectedTile = player:current_char():position()
-            local x = self.selectedTile[1]
-            local y = self.selectedTile[2]
-            if joystick:getAxis(1) < -0.5 then
-                x = math.max(1, x - 1)
-            elseif joystick:getAxis(1) > 0.5 then
-                x = math.min(x + 1, BOARD_X_SIZE)
-            end
-            if joystick:getAxis(2) < -0.5 then
-                y = math.max(1, y - 1)
-            elseif joystick:getAxis(2) > 0.5 then
-                y = math.min(y + 1, BOARD_Y_SIZE)
-            end
-            self.selectedTile = { x, y }
-        elseif player.useItemDelay == 0 then
-            local tile = choose(self.blankTiles)
-            self.selectedTile = {tile.x, tile.y }
+        self.selectedTile = player:current_char():position()
+        local x = self.selectedTile[1]
+        local y = self.selectedTile[2]
+        if joystick:getAxis(1) < -0.5 then
+            x = math.max(1, x - 1)
+        elseif joystick:getAxis(1) > 0.5 then
+            x = math.min(x + 1, BOARD_X_SIZE)
         end
+        if joystick:getAxis(2) < -0.5 then
+            y = math.max(1, y - 1)
+        elseif joystick:getAxis(2) > 0.5 then
+            y = math.min(y + 1, BOARD_Y_SIZE)
+        end
+        self.selectedTile = { x, y }
     end
 end
 
@@ -83,7 +78,10 @@ function Board:draw(player)
     for i, item in ipairs(self.items) do
         item:draw()
     end
-    if self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType ~= self.blockTile then
+    local type = self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType
+    if type == self.blankTile then
+        draw_on_tile(self.imageFrame, self.selectedTile[1], self.selectedTile[2])
+    elseif type == self.blockTile then
         draw_on_tile(self.imageFrame, self.selectedTile[1], self.selectedTile[2])
     end
 end
@@ -116,4 +114,52 @@ function Board:add_item()
         table.insert(self.items, Rock:new(tile.x, tile.y))
     end
     table.remove(self.blankTiles, tileInd)
+end
+
+function Board:push_to_the_max_up()
+    for i=1, self.selectedTile[2] do
+        if i == self.selectedTile[2] or self:get_tile(self.selectedTile[1], self.selectedTile[2] - i).tileType == self.blockTile then
+            self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType = self.blankTile
+            self:get_tile(self.selectedTile[1], self.selectedTile[2]).image = self.imageBlank
+            self:get_tile(self.selectedTile[1], self.selectedTile[2] - i + 1).tileType = self.blockTile
+            self:get_tile(self.selectedTile[1], self.selectedTile[2] - i + 1).image = self.imageBlock
+            return
+        end
+    end
+end
+
+function Board:push_to_the_max_down()
+    for i=self.selectedTile[2], BOARD_Y_SIZE do
+        if i == BOARD_Y_SIZE or self:get_tile(self.selectedTile[1], i + 1).tileType == self.blockTile then
+            self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType = self.blankTile
+            self:get_tile(self.selectedTile[1], self.selectedTile[2]).image = self.imageBlank
+            self:get_tile(self.selectedTile[1], i).tileType = self.blockTile
+            self:get_tile(self.selectedTile[1], i).image = self.imageBlock
+            return
+        end
+    end
+end
+
+function Board:push_to_the_max_left()
+    for i=1, self.selectedTile[1] do
+        if i == self.selectedTile[1] or self:get_tile(self.selectedTile[1] - i, self.selectedTile[2]).tileType == self.blockTile then
+            self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType = self.blankTile
+            self:get_tile(self.selectedTile[1], self.selectedTile[2]).image = self.imageBlank
+            self:get_tile(self.selectedTile[1] - i + 1, self.selectedTile[2]).tileType = self.blockTile
+            self:get_tile(self.selectedTile[1] - i + 1, self.selectedTile[2]).image = self.imageBlock
+            return
+        end
+    end
+end
+
+function Board:push_to_the_max_right()
+    for i=self.selectedTile[1], BOARD_X_SIZE do
+        if i == BOARD_X_SIZE or self:get_tile(i + 1, self.selectedTile[2]).tileType == self.blockTile then
+            self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType = self.blankTile
+            self:get_tile(self.selectedTile[1], self.selectedTile[2]).image = self.imageBlank
+            self:get_tile(i, self.selectedTile[2]).tileType = self.blockTile
+            self:get_tile(i, self.selectedTile[2]).image = self.imageBlock
+            return
+        end
+    end
 end
