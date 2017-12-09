@@ -7,8 +7,7 @@ function Ranger:new()
     local char = Character:new()
     local object = {
     name = 'ranger',
-    image = love.graphics.newImage('img/player/player_range.png'),
-    bulletImage = love.graphics.newImage('img/player/bullet.png'),
+    image = love.graphics.newImage('img/player/knightblue.png'),
     bullet_x = 0,
     bullet_y = 0,
     shooting = false,

@@ -1,7 +1,8 @@
 function love.load()
 	-- global declarations
 	math.randomseed(os.time())
-	love.mouse.setVisible(false)
+	--love.mouse.setVisible(false)
+    love.window.setMode( 1024, 768 )
 
 	-- load all modules
 	require "player"
@@ -10,13 +11,12 @@ function love.load()
 	require "utils"
 
 	-- initialization
-	-- imageDice = love.graphics.newImage('img/game/dice.png')
- --    imageBgChar = love.graphics.newImage('img/game/blank.png')
 
     local joysticks = love.joystick.getJoysticks()
     joystick = joysticks[1]
 
     player = Player:new()
+    player:add_ranger()
     player:add_ranger()
     -- player:add_shield()
     -- player:add_rogue()
@@ -51,15 +51,15 @@ function love.draw()
     computer:draw()
 	-- board:drawDecoration(player)
 
-	love.graphics.draw(player:current_char().image, 0, 500, 0, 2)
+	love.graphics.draw(player:current_char().image, 0, 650, 0, 2)
     if player:current_char().heldItem ~= nil then
-	    love.graphics.draw(player:current_char().heldItem.image, 100, 500, 0, 2)
+	    love.graphics.draw(player:current_char().heldItem.image, 100, 650, 0, 2)
     end
 
     -- INFO
-    love.graphics.print(tostring("player: "..player:current_char().x..","..player:current_char().y), 200, 520)
-    love.graphics.print(tostring("player currentChar: "..player.currentChar), 200, 530)
-    love.graphics.print(tostring("selected tile: "..board.selectedTile[1] .. "," .. board.selectedTile[2]), 200, 540)
-    love.graphics.print(tostring("selected tile type: "..board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType), 200, 550)
+    love.graphics.print(tostring("player: "..player:current_char().x..","..player:current_char().y), 200, 670)
+    love.graphics.print(tostring("player currentChar: "..player.currentChar), 200, 680)
+    love.graphics.print(tostring("selected tile: "..board.selectedTile[1] .. "," .. board.selectedTile[2]), 200, 690)
+    love.graphics.print(tostring("selected tile type: "..board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType), 200, 700)
 
 end

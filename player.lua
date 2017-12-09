@@ -23,18 +23,27 @@ end
 -- Update movement
 function Player:update(board)
     if joystick:isDown(1) and self.released then
-        local type = board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType
-        if type == board.blankTile then
-            self:move(board)
-        elseif type == board.blockTile then
-            self:push(board)
+        if not board:get_tile(board.selectedTile[1], board.selectedTile[2]).isCharOn then
+            local type = board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType
+            if type == board.blankTile then
+                self:move(board)
+            elseif type == board.blockTile then
+                self:push(board)
+            end
+        end
+        self.released = false
+    end
+    if joystick:isDown(5) and self.released then
+        self.currentChar = ((self.currentChar + 1) % #(self.characters))
+        if self.currentChar == 0 then
+            self.currentChar = #(self.characters)
         end
         self.released = false
     end
     if self:current_char().heldItem == nil then
         self:check_items(board)
     end
-    if not joystick:isDown(1) then
+    if not joystick:isDown(1, 2, 3, 4, 5, 6, 7) then
         self.released = true
     end
 end
@@ -72,6 +81,7 @@ function Player:go_to_start_position(board)
                 table.remove(btiles, i)
             end
         end
+        board:get_tile(char.x, char.y).isCharOn = true
     end
     self.dice = 0
     self.turnState = self.turnFinished
@@ -94,8 +104,10 @@ function Player:finish_turn()
 end
 
 function Player:move(board)
+    board:get_tile(self:current_char().x, self:current_char().y).isCharOn = false
     self:current_char().x = board.selectedTile[1]
     self:current_char().y = board.selectedTile[2]
+    board:get_tile(self:current_char().x, self:current_char().y).isCharOn = true
 end
 
 function Player:push(board)

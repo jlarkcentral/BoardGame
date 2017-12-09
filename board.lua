@@ -13,19 +13,7 @@ function Board:new()
         blockTiles = {},
         villainPositions = {},
         villainMoved = false,
-        imageBlank = love.graphics.newImage('img/board/blank.png'),
-        imageNeutraloor = love.graphics.newImage('img/board/tileNeutraloor.png'),
-        imageDanger = love.graphics.newImage('img/board/danger.png'),
-        imageEnd = love.graphics.newImage('img/board/end.png'),
-        imageBlock = love.graphics.newImage('img/board/block.png'),
         imageFrame = love.graphics.newImage('img/board/frame.png'),
-        imageFrameNormal = love.graphics.newImage('img/board/frame.png'),
-        imageFrameUseItem = love.graphics.newImage('img/board/frameUse.png'),
-        imageVillain = love.graphics.newImage('img/board/villain.png'),
-        imageGrass = love.graphics.newImage('img/board/grass.png'),
-        imageGrass2 = love.graphics.newImage('img/board/grass2.png'),
-        imageCloud = love.graphics.newImage('img/board/cloud.png'),
-        imageBorder = love.graphics.newImage('img/board/border.png'),
         blankTile = "blankTile",
         blockTile = "blockTile",
         selectedTile = { 1, 1 },
@@ -38,7 +26,7 @@ function Board:initialize()
     for i = 1, BOARD_Y_SIZE do
         for j = 1, BOARD_X_SIZE do
             local randomType = choose({ self.blankTile, self.blockTile }, { 80, 20 })
-            local newTile = Tile:new(j, i, randomType, self:tile_image(randomType))
+            local newTile = Tile:new(j, i, randomType)
             table.insert(self.tiles, newTile)
             if randomType == self.blankTile then
                 table.insert(self.blankTiles, newTile)
@@ -46,6 +34,13 @@ function Board:initialize()
                 table.insert(self.blockTiles, newTile)
             end
         end
+    end
+    local colorTiles = choose_n(self.blankTiles, 10)
+    for i=1, 5 do
+        self.blankTiles[colorTiles[i]].color = 'blue'
+    end
+    for i=6, 10 do
+        self.blankTiles[colorTiles[i]].color = 'red'
     end
 end
 
@@ -88,13 +83,6 @@ end
 
 -----------------------------------
 -----------------------------------
-function Board:tile_image(tileType)
-    if tileType == self.blankTile then
-        return self.imageBlank
-    elseif tileType == self.blockTile then
-        return self.imageBlock
-    end
-end
 
 function Board:get_tile(x, y)
     for _, t in ipairs(self.tiles) do
@@ -118,11 +106,11 @@ end
 
 function Board:push_to_the_max_up()
     for i=1, self.selectedTile[2] do
-        if i == self.selectedTile[2] or self:get_tile(self.selectedTile[1], self.selectedTile[2] - i).tileType == self.blockTile then
+        if i == self.selectedTile[2]
+                or self:get_tile(self.selectedTile[1], self.selectedTile[2] - i).tileType == self.blockTile
+                or self:get_tile(self.selectedTile[1], self.selectedTile[2] - i).isCharOn then
             self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType = self.blankTile
-            self:get_tile(self.selectedTile[1], self.selectedTile[2]).image = self.imageBlank
             self:get_tile(self.selectedTile[1], self.selectedTile[2] - i + 1).tileType = self.blockTile
-            self:get_tile(self.selectedTile[1], self.selectedTile[2] - i + 1).image = self.imageBlock
             return
         end
     end
@@ -130,11 +118,11 @@ end
 
 function Board:push_to_the_max_down()
     for i=self.selectedTile[2], BOARD_Y_SIZE do
-        if i == BOARD_Y_SIZE or self:get_tile(self.selectedTile[1], i + 1).tileType == self.blockTile then
+        if i == BOARD_Y_SIZE
+                or self:get_tile(self.selectedTile[1], i + 1).tileType == self.blockTile
+                or self:get_tile(self.selectedTile[1], i + 1).isCharOn then
             self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType = self.blankTile
-            self:get_tile(self.selectedTile[1], self.selectedTile[2]).image = self.imageBlank
             self:get_tile(self.selectedTile[1], i).tileType = self.blockTile
-            self:get_tile(self.selectedTile[1], i).image = self.imageBlock
             return
         end
     end
@@ -142,11 +130,11 @@ end
 
 function Board:push_to_the_max_left()
     for i=1, self.selectedTile[1] do
-        if i == self.selectedTile[1] or self:get_tile(self.selectedTile[1] - i, self.selectedTile[2]).tileType == self.blockTile then
+        if i == self.selectedTile[1]
+                or self:get_tile(self.selectedTile[1] - i, self.selectedTile[2]).tileType == self.blockTile
+                or self:get_tile(self.selectedTile[1] - i, self.selectedTile[2]).isCharOn then
             self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType = self.blankTile
-            self:get_tile(self.selectedTile[1], self.selectedTile[2]).image = self.imageBlank
             self:get_tile(self.selectedTile[1] - i + 1, self.selectedTile[2]).tileType = self.blockTile
-            self:get_tile(self.selectedTile[1] - i + 1, self.selectedTile[2]).image = self.imageBlock
             return
         end
     end
@@ -154,11 +142,11 @@ end
 
 function Board:push_to_the_max_right()
     for i=self.selectedTile[1], BOARD_X_SIZE do
-        if i == BOARD_X_SIZE or self:get_tile(i + 1, self.selectedTile[2]).tileType == self.blockTile then
+        if i == BOARD_X_SIZE
+                or self:get_tile(i + 1, self.selectedTile[2]).tileType == self.blockTile
+                or self:get_tile(i + 1, self.selectedTile[2]).isCharOn then
             self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType = self.blankTile
-            self:get_tile(self.selectedTile[1], self.selectedTile[2]).image = self.imageBlank
             self:get_tile(i, self.selectedTile[2]).tileType = self.blockTile
-            self:get_tile(i, self.selectedTile[2]).image = self.imageBlock
             return
         end
     end

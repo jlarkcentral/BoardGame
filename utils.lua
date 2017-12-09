@@ -3,17 +3,17 @@
 
 
 -- global params
-TILE_PIXEL_SIZE = 50
-BOARD_X_SIZE = 16
+TILE_PIXEL_SIZE = 16
+BOARD_X_SIZE = 10
 BOARD_Y_SIZE = 10
 
 function tile_distance(t1, t2)
     return math.abs(t2[1]-t1[1]) + math.abs(t2[2]-t1[2])
 end
 
-function choose(table, weights)
+function choose(tabl, weights)
 	if weights == nil then
-		return table[math.random(#table)]
+		return tabl[math.random(#tabl)]
 	else
 		local s = 0
 		for _,v in ipairs(weights) do
@@ -24,16 +24,42 @@ function choose(table, weights)
 		for i=1,#weights do
 			sum = sum + weights[i]
 			if r <= sum then
-				return table[i]
+				return tabl[i]
 			end
 		end
 	end
 end
 
-function draw_on_tile(image, x, y)
-	love.graphics.draw(image, (x-1)*TILE_PIXEL_SIZE, (y-1)*TILE_PIXEL_SIZE)
+function choose_n(tabl, n)
+	local t = {}
+	for i=1, #tabl do
+		table.insert(t, i)
+	end
+	local r = {}
+	for i=1, n do
+		local x = math.random(#tabl)
+		table.remove(t, x)
+		table.insert(r, x)
+	end
+	return r
+end
+
+function draw_on_tile(image, x, y, offsetx, offsety)
+	love.graphics.draw(image, (x-1)*TILE_PIXEL_SIZE*4 + (offsetx or 0), (y-1)*TILE_PIXEL_SIZE*4 + (offsety or 0), 0, 4)
 end
 
 function pixel_position(x, y)
 	return {x*TILE_PIXEL_SIZE, y*TILE_PIXEL_SIZE}
+end
+
+function table_print(tabl)
+	local r = '['
+	for i, e in ipairs(tabl) do
+		r = r .. e
+		if i ~= #tabl then
+			r = r .. ', '
+		end
+	end
+	r = r .. ']'
+	print(r)
 end

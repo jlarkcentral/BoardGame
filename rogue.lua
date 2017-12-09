@@ -4,7 +4,7 @@ Rogue = {}
 function Rogue:new()
     local object = {
     name = 'rogue',
-    image = love.graphics.newImage('img/player/player_rogue.png'),
+    image = love.graphics.newImage('img/player/knightred.png'),
     x = 1,
     y = 1,
     }

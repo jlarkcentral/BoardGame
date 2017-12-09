@@ -13,7 +13,7 @@ function Character:new()
 end
 
 function Character:draw()
-    draw_on_tile(self.image, self.x, self.y)
+    draw_on_tile(self.image, self.x, self.y, 0, -20)
 end
 
 function Character:position()

@@ -48,7 +48,7 @@ end
 function Computer:go_to_start_position(board)
 	local btiles = get_blank_tiles_y(board)
 	for i,char in ipairs(self.characters) do
-		char.x = 16
+		char.x = BOARD_X_SIZE
 		local r = choose(btiles)
 		char.y = r
 		for i,v in ipairs(btiles) do
@@ -56,6 +56,7 @@ function Computer:go_to_start_position(board)
 				table.remove(btiles, i)
 			end
 		end
+		board:get_tile(char.x, char.y).isCharOn = true
 	end
 	self.dice = 0
 	self.turnState = self.turnFinished
