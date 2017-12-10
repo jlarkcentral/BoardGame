@@ -14,7 +14,8 @@ function Player:new()
         turnState = "",
         useItemMode = false,
         canUseItem = true,
-        useItemDelay = 0
+        useItemDelay = 0,
+        turnPoints = 0
     }
     setmetatable(object, { __index = Player })
     return object
@@ -22,23 +23,27 @@ end
 
 -- Update movement
 function Player:update(board)
-    if joystick:isDown(1) and self.released then
-        if not board:get_tile(board.selectedTile[1], board.selectedTile[2]).isCharOn then
-            local type = board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType
-            if type == board.blankTile then
-                self:move(board)
-            elseif type == board.blockTile then
-                self:push(board)
+    if self.turnPoints > 0 then
+        if joystick:isDown(1) and self.released then
+            if not board:get_tile(board.selectedTile[1], board.selectedTile[2]).isCharOn then
+                local type = board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType
+                if type == board.blankTile then
+                    self:move(board)
+                elseif type == board.blockTile then
+                    self:push(board)
+                end
             end
+            self.released = false
+            self.turnPoints = self.turnPoints - 1
         end
-        self.released = false
-    end
-    if joystick:isDown(5) and self.released then
-        self.currentChar = ((self.currentChar + 1) % #(self.characters))
-        if self.currentChar == 0 then
-            self.currentChar = #(self.characters)
+        if joystick:isDown(5) and self.released then
+            self.currentChar = ((self.currentChar + 1) % #(self.characters))
+            if self.currentChar == 0 then
+                self.currentChar = #(self.characters)
+            end
+            self.released = false
+            self.turnPoints = self.turnPoints - 1
         end
-        self.released = false
     end
     if self:current_char().heldItem == nil then
         self:check_items(board)
@@ -71,20 +76,12 @@ end
 
 -- Place player at game start
 function Player:go_to_start_position(board)
-    local btiles = get_blank_tiles_y(board)
+    local startTiles = choose_n(board.blankTiles, #self.characters)
     for i, char in ipairs(self.characters) do
-        char.x = 1
-        local r = choose(btiles)
-        char.y = r
-        for i, v in ipairs(btiles) do
-            if v == r then
-                table.remove(btiles, i)
-            end
-        end
-        board:get_tile(char.x, char.y).isCharOn = true
+        char.x = board.blankTiles[startTiles[i]].x
+        char.y = board.blankTiles[startTiles[i]].y
+        board.blankTiles[startTiles[i]].isCharOn = true
     end
-    self.dice = 0
-    self.turnState = self.turnFinished
 end
 
 function Player:tile_in_range(tilePos)

@@ -18,8 +18,8 @@ function love.load()
     player = Player:new()
     player:add_ranger()
     player:add_ranger()
-    -- player:add_shield()
-    -- player:add_rogue()
+    player.turn = true
+    player.turnPoints = 5
 
     computer = Computer:new()
     computer:add_rogue()
@@ -38,10 +38,19 @@ end
 
 function love.update(dt)
 	player:update(board)
-    computer:update(board)
+    computer:update(board, player)
 	board:update(player)
     if love.keyboard.isDown("escape") then
         restart()
+    end
+    if player.turn and player.turnPoints == 0 then
+        computer.turnPoints = 5
+        computer.turn = true
+        player.turn = false
+    elseif computer.turn and computer.turnPoints == 0 then
+        player.turnPoints = 5
+        computer.turn = false
+        player.turn = true
     end
 end
 
@@ -61,5 +70,7 @@ function love.draw()
     love.graphics.print(tostring("player currentChar: "..player.currentChar), 200, 680)
     love.graphics.print(tostring("selected tile: "..board.selectedTile[1] .. "," .. board.selectedTile[2]), 200, 690)
     love.graphics.print(tostring("selected tile type: "..board:get_tile(board.selectedTile[1], board.selectedTile[2]).tileType), 200, 700)
+    love.graphics.print(tostring("player turn points: "..player.turnPoints), 200, 710)
+    love.graphics.print(tostring("computer turn points: "..computer.turnPoints), 400, 710)
 
 end

@@ -11,7 +11,8 @@ function Tile:new(xpos, ypos, type)
         isVillainOn = false,
         isDangerTile = false,
         isWarfoged = true,
-        isEndTile = false,
+        moving = false,
+        destination = nil,
         imageWarfoged = love.graphics.newImage('img/board/warfoged.png'),
         imageBlank = love.graphics.newImage('img/board/blank.png'),
         imageBlock = love.graphics.newImage('img/board/block.png'),
@@ -26,7 +27,7 @@ function Tile:draw()
     if self.tileType == "blankTile" then
         draw_on_tile(self.imageBlank, (self.x), (self.y))
     elseif self.tileType == "blockTile" then
-        draw_on_tile(self.imageBlock, (self.x), (self.y), 0, -16)
+        draw_on_tile(self.imageBlock, (self.x), (self.y))
     end
     if self.color == 'blue' then
         draw_on_tile(self.imageBlue, (self.x), (self.y))

@@ -11,11 +11,13 @@ function Board:new()
         items = {},
         blankTiles = {},
         blockTiles = {},
+        noneTiles = {},
         villainPositions = {},
         villainMoved = false,
         imageFrame = love.graphics.newImage('img/board/frame.png'),
         blankTile = "blankTile",
         blockTile = "blockTile",
+        noneTile = "noneTile",
         selectedTile = { 1, 1 },
     }
     setmetatable(object, { __index = Board })
@@ -25,22 +27,17 @@ end
 function Board:initialize()
     for i = 1, BOARD_Y_SIZE do
         for j = 1, BOARD_X_SIZE do
-            local randomType = choose({ self.blankTile, self.blockTile }, { 80, 20 })
-            local newTile = Tile:new(j, i, randomType)
+            local tileType = choose({ self.blankTile, self.blockTile, self.noneTile }, { 80, 20, 0 })
+            local newTile = Tile:new(j, i, tileType)
             table.insert(self.tiles, newTile)
-            if randomType == self.blankTile then
+            if tileType == self.blankTile then
                 table.insert(self.blankTiles, newTile)
-            else
+            elseif tileType == self.blockTile then
                 table.insert(self.blockTiles, newTile)
+            elseif tileType == self.noneTile then
+                table.insert(self.noneTiles, newTile)
             end
         end
-    end
-    local colorTiles = choose_n(self.blankTiles, 10)
-    for i=1, 5 do
-        self.blankTiles[colorTiles[i]].color = 'blue'
-    end
-    for i=6, 10 do
-        self.blankTiles[colorTiles[i]].color = 'red'
     end
 end
 
@@ -73,12 +70,10 @@ function Board:draw(player)
     for i, item in ipairs(self.items) do
         item:draw()
     end
-    local type = self:get_tile(self.selectedTile[1], self.selectedTile[2]).tileType
-    if type == self.blankTile then
-        draw_on_tile(self.imageFrame, self.selectedTile[1], self.selectedTile[2])
-    elseif type == self.blockTile then
+    if player.turn then
         draw_on_tile(self.imageFrame, self.selectedTile[1], self.selectedTile[2])
     end
+
 end
 
 -----------------------------------
